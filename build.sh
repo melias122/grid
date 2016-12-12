@@ -1,6 +1,5 @@
 #!/bin/bash
 
-CC=mpicc
 CXX=mpicxx
 
 BUILD_DIR=build
