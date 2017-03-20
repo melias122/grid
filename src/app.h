@@ -17,6 +17,8 @@ private:
 struct Bruteforcer
 {
 	~Bruteforcer() {}
+	// notice that procId count from 0
+	// procId is always < nproc
 	virtual void run(int procId, int nproc) = 0;
 };
 
