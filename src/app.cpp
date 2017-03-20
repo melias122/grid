@@ -3,6 +3,7 @@
 #include "mpi.h"
 
 #include <typeinfo>
+#include <cassert>
 
 Application::Application()
 {
@@ -40,12 +41,14 @@ MPI_Datatype get_datatype()
 	if (typeid(T) == typeid(char)) {
 		return MPI_CHAR;
 	}
-	if (typeid(T) == typeid(int)) {
+	else if (typeid(T) == typeid(int)) {
 		return MPI_INT;
+	}
+	else {
+		assert(MPI_UNDEFINED);
 	}
 	return 0;
 }
-
 
 template <typename T>
 void comm<T>::send(int dest, int tag, const T &data, int size)
@@ -63,4 +66,40 @@ T comm<T>::recv(int source, int tag, int size) const
 	MPI_Recv(&t, size, get_datatype<T>(), source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 	std::cout << MPI::COMM_WORLD.Get_rank() << " got " << t << std::endl;
 	return t;
+}
+
+void sendString(int dest, int tag, const std::string &s)
+{
+	std::cout << "Debug/sendString: send " << s << " to: " << dest << " tag: " << tag << std::endl;
+
+	MPI_Send(s.c_str(),
+			 s.size(),
+			 MPI_CHAR,
+			 dest % MPI::COMM_WORLD.Get_size(),
+			 tag,
+			 MPI_COMM_WORLD);
+}
+
+std::string recvString(int source, int tag)
+{
+	int strlen;
+	MPI_Status status;
+
+	source %= MPI::COMM_WORLD.Get_size();
+
+	MPI_Probe(source, tag, MPI_COMM_WORLD, &status);
+	MPI_Get_count(&status, MPI_CHAR, &strlen);
+
+	std::string s(strlen, 0);
+	MPI_Recv(&s[0], // ok in c++11
+			 s.size(),
+			 MPI_CHAR,
+			 source,
+			 tag,
+			 MPI_COMM_WORLD,
+			 MPI_STATUS_IGNORE);
+
+	std::cout << "Debug/recvString: recv " << s << " from: " << source << " tag: " << tag << std::endl;
+
+	return s;
 }

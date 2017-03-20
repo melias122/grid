@@ -1,6 +1,8 @@
 #ifndef APP_H
 #define APP_H
 
+#include <string>
+
 class Application
 {
 public:
@@ -32,6 +34,9 @@ struct Runner
 		b->run(app.rank(), app.size());
 	}
 };
+
+void sendString(int dest, int tag, const std::string &s);
+std::string recvString(int source, int tag);
 
 // experimental communicator
 template <typename T>
