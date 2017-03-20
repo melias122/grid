@@ -4,8 +4,19 @@
 #include <algorithm>
 
 #include "app.h"
+#include "mpi.h"
 
 using namespace std;
+
+static const string alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+string randomString(const int len) {
+	string s(len, 0);
+	for (int i = 0; i < len; ++i) {
+		s[i] = alphanum[rand() % alphanum.length()];
+	}
+	return s;
+}
 
 class Vigenere {
 public:
@@ -37,16 +48,37 @@ public:
 		  m_pt{pt},
 		  m_maxKeylen{maxKeyLength}
 	{
-		m_pt.resize(ct.size());
+//		m_pt.resize(ct.size());
+	}
+
+	VigenereBreaker(int plaintextSize, int keySize)
+		: plaintextSize{plaintextSize},
+		  keySize{keySize},
+		  m_maxKeylen{keySize}
+	{
 	}
 
 	void run(int procId, int nproc) override {
-		cout << procId << nproc << endl;
 		if (procId > 26) {
 			return;
 		}
 
-		cout << "VigenereBreaker " << procId << endl;
+		if (procId == 0) {
+			string key = randomString(keySize);
+			cout << "Generated key: " << key << endl;
+			m_pt = randomString(plaintextSize);
+			m_ct = m_cipher.encrypt(m_pt, key);
+
+			for (int i = 1; i < nproc; i++) {
+				sendString(i, 0, m_pt);
+				sendString(i, 1, m_ct);
+			}
+		} else {
+			m_pt = recvString(0, 0);
+			m_ct = recvString(0, 1);
+		}
+
+		cout << "VigenereBreaker proc: " << procId << endl;
 		string key(m_maxKeylen, 0);
 		key[0] = procId + 'A';
 		recursive(1, m_maxKeylen, key);
@@ -63,6 +95,7 @@ private:
 				if (m_pt == guess) {
 					cout << "Heslo je: " << key << endl;
 					done = true;
+					MPI_Abort(MPI_COMM_WORLD, 0);
 				}
 
 				recursive(level + 1, maxLevel, key);
@@ -76,17 +109,21 @@ private:
 	int m_maxKeylen;
 	string m_ct, m_pt;
 
+	int plaintextSize, keySize;
 	bool done{false};
 };
 
-static const string alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+int test()
+{
+	string key = randomString(4);
+	string pt = randomString(100);
 
-string randomString(const int len) {
-	string s(len, 0);
-	for (int i = 0; i < len; ++i) {
-		s[i] = alphanum[rand() % alphanum.length()];
+	Vigenere cipher;
+	auto ct  = cipher.encrypt(pt, key);
+	auto pt2 = cipher.decrypt(ct, key);
+	if (pt != pt2) {
+		cout << "test: encryption/decryption failed" << endl;
 	}
-	return s;
 }
 
 int main(int argc, char *argv[]) {
@@ -102,20 +139,7 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	string key = randomString(keySize);
-	string pt = randomString(ptSize);
-
-	Vigenere cipher;
-	auto ct  = cipher.encrypt(pt, key);
-	auto pt2 = cipher.decrypt(ct, key);
-	if (pt != pt2) {
-		cout << "test: encryption/decryption failed" << endl;
-		return 1;
-	}
-
-	cout << key << endl;
-
-	VigenereBreaker v(ct, pt, key.length());
+	VigenereBreaker v(ptSize, keySize);
 	Runner::run(&v);
 
 	return 0;
