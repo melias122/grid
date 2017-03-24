@@ -1,5 +1,6 @@
 #!/bin/bash
 
+CC=mpicc
 CXX=mpicxx
 BUILD_DIR=build
 
@@ -10,7 +11,22 @@ usage() {
 	exit 1
 }
 
+clang_format_all() {
+	find . \
+		 -name '*.h' \
+		 -o -name '*.cpp' \
+		| xargs clang-format -i -style=Webkit
+}
+
+load_modules() {
+	module load cmake/3.1.0
+	module load gcc/6.3
+	module load mvapich2/2.2
+}
+
 build_all() {
+	clang_format_all
+	load_modules
 	mkdir -p $BUILD_DIR
 	cd $BUILD_DIR
 	cmake ..
