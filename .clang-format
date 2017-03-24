@@ -11,5 +11,5 @@ BreakBeforeBraces: Linux
 PointerAlignment: Right
 Standard: Cpp11
 TabWidth: 4
-# UseTab: ForIndentation
+UseTab: Never
 ...
