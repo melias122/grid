@@ -1,14 +1,14 @@
 #ifndef SCHEME_GA_H
 #define SCHEME_GA_H
 
-#include <vector>
-#include "Select.h"
 #include "GeneticOperation.h"
+#include "Select.h"
+#include <vector>
 
 struct SelGenOp {
-    Select *sel;
-    GeneticOperation *op;
-    SelGenOp *next{0};
+    Select* sel;
+    GeneticOperation* op;
+    SelGenOp* next{ 0 };
 };
 
 class SchemeGA {
@@ -24,8 +24,6 @@ public:
     SchemeGA(unsigned int mi, unsigned int mt, unsigned int ip);
 
     SchemeGA(const SchemeGA& other);
-
-
 };
 
-#endif 
+#endif

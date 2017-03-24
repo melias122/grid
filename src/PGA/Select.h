@@ -1,9 +1,7 @@
 #ifndef SEL_H
 #define SEL_H
 
-#include <vector>
 #include "Chromosome.h"
-
 
 class Select {
 public:
@@ -11,22 +9,15 @@ public:
 
     Select(unsigned int subPopCnt);
 
-    Select(const Select& other);
+    // select vracia kopiu, novu populaciu.
+    virtual Population select(Population p) { return p; }
 
-    virtual std::vector<Chromosome *> select(std::vector<Chromosome *>& pop);
+    void SetSubPopulationSize(unsigned int val) { subPopulationSize = val; }
 
-    void SetSubPopulationSize(unsigned int val) {
-        subPopulationSize = val;
-    }
-
-    unsigned int GetSubPopulationSize() {
-        return subPopulationSize;
-    }
-
-
+    unsigned int GetSubPopulationSize() { return subPopulationSize; }
 
 private:
     unsigned int subPopulationSize;
 };
 
-#endif 
+#endif

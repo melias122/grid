@@ -3,19 +3,15 @@
 
 #include "GeneticOperation.h"
 
-class GeneticOperationMutationSwap : public GeneticOperation
-{
-    public:
-        int swapsCount;
+class GeneticOperationMutationSwap : public GeneticOperation {
+public:
+    GeneticOperationMutationSwap();
+    GeneticOperationMutationSwap(int swapCnt);
 
-        GeneticOperationMutationSwap();
+    void apply(Population& population) override;
 
-        GeneticOperationMutationSwap(int swapCnt);
-
-        GeneticOperationMutationSwap(const GeneticOperationMutationSwap& other);
-
-        void apply(std::vector<Chromosome *>& pop);
+private:
+    int swapsCount;
 };
 
-
-#endif 
+#endif

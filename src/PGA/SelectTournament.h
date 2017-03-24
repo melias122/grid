@@ -5,14 +5,16 @@
 
 class SelectTournament : public Select {
 public:
+    SelectTournament()
+        : Select()
+    {
+    }
+    SelectTournament(unsigned int subPopCnt)
+        : Select(subPopCnt)
+    {
+    }
 
-    SelectTournament() : Select() {
-    };
-
-    SelectTournament(unsigned int subPopCnt) : Select(subPopCnt) {
-    };
-
-    std::vector<Chromosome *> select(std::vector<Chromosome *>& pop);
+    Population select(Population p);
 };
 
-#endif 
+#endif

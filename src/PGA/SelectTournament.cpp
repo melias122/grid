@@ -1,21 +1,19 @@
 #include "SelectTournament.h"
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
+#include <cstdlib>
 
-std::vector<Chromosome *> SelectTournament::select(std::vector<Chromosome *>& pop) {
-    std::vector<Chromosome*> retVal;
+Population SelectTournament::select(Population p)
+{
+    Population newp;
     for (int i = 0; i < GetSubPopulationSize(); i++) {
-        int a = rand() % pop.size();
-        int b = rand() % pop.size();
-        Chromosome* ca = pop[a];
-        Chromosome* cb = pop[b];
-        if (ca->GetScore() > cb->GetScore()) {
-            retVal.push_back(new Chromosome((*ca)));
+        int a = rand() % p.size();
+        int b = rand() % p.size();
+        Chromosome& ca = p[a];
+        Chromosome& cb = p[b];
+        if (ca.score() > cb.score()) {
+            newp.push_back(ca);
         } else {
-            retVal.push_back(new Chromosome((*cb)));
+            newp.push_back(cb);
         }
     }
-
-    return retVal;
-};
-
+    return newp;
+}

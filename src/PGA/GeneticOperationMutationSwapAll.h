@@ -3,15 +3,9 @@
 
 #include "GeneticOperation.h"
 
-
-class GeneticOperationMutationSwapAll: public GeneticOperation
-{
-    public:
-
-        GeneticOperationMutationSwapAll();
-
-        void apply(std::vector<Chromosome *>& pop);
+class GeneticOperationMutationSwapAll : public GeneticOperation {
+public:
+    void apply(Population& pop) override;
 };
 
-
-#endif 
+#endif

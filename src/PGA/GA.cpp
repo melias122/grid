@@ -1,96 +1,86 @@
 #include "GA.h"
 #include "GeneticOperationMutationSwap.h"
-#include "SelectElitism.h"
-#include <iostream>
 #include "Helpers.h"
-#include "SelectTournament.h"
-#include <iostream>
 #include "Migrator.h"
-#include <thread>
+#include "SelectElitism.h"
+#include "SelectTournament.h"
 #include <chrono>
+#include <iostream>
+#include <iostream>
 #include <mutex>
- 
-std::mutex g_display_mutex;
+#include <thread>
+
+using namespace std;
+
+mutex g_display_mutex;
 
 static int idGen = 0;
 
-GA::GA() {
-    this->id = ++idGen;
-};
+GA::GA() { id = ++idGen; }
 
-void GA::init(SchemeGA *sch, Cipher *c, Fitness *f) {
-    this->scheme = sch;
-    this->cipher = c;
-    this->fitness = f;
+void GA::init(SchemeGA* sch, Cipher* c, Fitness* f)
+{
+    cout << "GA::init" << endl;
+    scheme = sch;
+    cipher = c;
+    fitness = f;
     // init podla schemy
     for (int i = 0; i < scheme->initialPopulation; i++) {
-        Chromosome *chrm = new Chromosome();
-        this->population.push_back(chrm);
-        std::string txt = this->cipher->decrypt((*chrm->GetGenes()));
-        float score = this->fitness->evaluate(txt);
-        chrm->SetScore(score);
+        Chromosome c;
+        population.push_back(c);
+        string txt = cipher->decrypt(c.genes());
+        double score = fitness->evaluate(txt);
+        c.setScore(score);
     }
 }
 
-void GA::setMigrator(Migrator* m) {
-    this->migrator = m;
-}
+void GA::setMigrator(Migrator* m) { migrator = m; }
 
-void GA::start() {
+void GA::start()
+{
 
-    std::thread::id this_id = std::this_thread::get_id();
+    thread::id this_id = this_thread::get_id();
 
     g_display_mutex.lock();
-    std::cout << "GA started on thread " << this_id << " ...\n";
+    cout << "GA started on thread " << this_id << " ...\n";
     g_display_mutex.unlock();
 
-
     for (int i = 1; i <= scheme->maxIteration; i++) {
-        if (i % scheme->migrationTime == 0 && this->migrator != nullptr) {
-            // Helpers::printChromosome(this->population[0]);
-            // std::cout << this->population[0]->GetScore() << "\n";
-            std::vector<Chromosome*> newInformation;
-            std::vector<Chromosome *> popCopy = Helpers::deepCopy(this->population);
-            //
-            this->migrator->requestMigration(this->id, popCopy, newInformation);
-            //
-            for (int c = 0; c < newInformation.size(); c++) {
-                this->population.push_back(newInformation[c]);
+        Population newPopulation;
+        if (i % scheme->migrationTime == 0 && migrator != nullptr) {
+            migrator->requestMigration(id, population, newPopulation);
+            for (int j = 0; j < newPopulation.size(); j++) {
+                population.push_back(newPopulation[j]);
             }
         }
 
-        std::vector<Chromosome*> newPop;
-        for (int c = 0; c < this->scheme->genOps.size(); c++) {
-            SelGenOp sgo = this->scheme->genOps[c];
-            std::vector<Chromosome*> selected = applySelGenOp(sgo, this->population);
-            newPop.insert(std::end(newPop), std::begin(selected), std::end(selected));
-
+        newPopulation.clear();
+        for (int j = 0; j < scheme->genOps.size(); j++) {
+            Population selected = applySelGenOp(scheme->genOps[j], population);
+            newPopulation.insert(end(newPopulation), begin(selected), end(selected));
         }
 
-        this->population.clear();
-        this->population.insert(std::end(this->population), std::begin(newPop), std::end(newPop));
-
+        population = newPopulation;
     }
 
-    std::string txt = this->cipher->decrypt((*this->population[0]->GetGenes()));
-    std::cout << txt << "\n";
+    string txt = cipher->decrypt(population[0].genes());
+    cout << txt << "\n";
 }
 
-std::vector<Chromosome *> GA::applySelGenOp(SelGenOp& sgo, std::vector<Chromosome *>& subPop) {
-    std::vector<Chromosome*> selected = sgo.sel->select(subPop);
+Population GA::applySelGenOp(SelGenOp& sgo, const Population& subPop)
+{
+    Population selected = sgo.sel->select(subPop);
     sgo.op->apply(selected);
+
     for (int j = 0; j < selected.size(); j++) {
-        std::string txt = this->cipher->decrypt((*selected[j]->GetGenes()));
-        float score = this->fitness->evaluate(txt);
-        selected[j]->SetScore(score);
+        string txt = cipher->decrypt(selected[j].genes());
+        double score = fitness->evaluate(txt);
+        selected[j].setScore(score);
     }
+
     if (sgo.next) {
         selected = applySelGenOp((*sgo.next), selected);
     }
 
     return selected;
 }
-
-
-
-

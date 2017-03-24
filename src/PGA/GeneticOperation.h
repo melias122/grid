@@ -5,10 +5,9 @@
 
 class GeneticOperation {
 public:
+    ~GeneticOperation() {}
 
-    GeneticOperation();
-
-    virtual void apply(std::vector<Chromosome *>& pop);
+    virtual void apply(Population& pop) {}
 };
 
-#endif 
+#endif

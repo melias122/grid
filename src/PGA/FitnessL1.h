@@ -13,21 +13,18 @@ public:
     ~FitnessL1();
 
     void init(int n);
-    float evaluate(std::string& in);
+    double evaluate(std::string& in);
 
 protected:
     int n;
-    float* refMono;
-    float** refBi;
-    float*** refTri;
+    double* refMono;
+    double** refBi;
+    double*** refTri;
 
 private:
-
-    float L1DistanceMonograms(std::string& in);
-    float L1DistanceBigrams(std::string& in);
-    float L1DistanceTrigrams(std::string& in);
-
-
+    double L1DistanceMonograms(std::string& in);
+    double L1DistanceBigrams(std::string& in);
+    double L1DistanceTrigrams(std::string& in);
 };
 
 #endif // FITNESS_L1_H

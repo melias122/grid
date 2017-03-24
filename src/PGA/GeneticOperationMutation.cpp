@@ -1,32 +1,28 @@
 #include "GeneticOperationMutation.h"
-#include "Helpers.h"
-#include <stdlib.h>     /* srand, rand */
 
-GeneticOperationMutation::GeneticOperationMutation() {
+#include "Helpers.h"
+
+GeneticOperationMutation::GeneticOperationMutation()
+{
     mutationProbability = 0.01;
 }
 
-GeneticOperationMutation::GeneticOperationMutation(float mutProb) {
+GeneticOperationMutation::GeneticOperationMutation(double mutProb)
+{
     mutationProbability = mutProb;
 }
 
-GeneticOperationMutation::GeneticOperationMutation(const GeneticOperationMutation& other) {
-    mutationProbability = other.mutationProbability;
-}
-
-void GeneticOperationMutation::apply(std::vector<Chromosome *>& pop) {
+void GeneticOperationMutation::apply(Population& pop)
+{
     // for all chromosomes
     // for all genes
     for (int i = 0; i < pop.size(); i++) {
-        Chromosome *chrm = pop[i];
-        for (int g = 0; g < chrm->GetLength(); g++) {
-            float r = static_cast<float> (rand()) / static_cast<float> (RAND_MAX);
+        Chromosome& c = pop[i];
+        for (int g = 0; g < c.size(); g++) {
+            double r = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
             if (r < mutationProbability) {
-                int rnd = rand() % abcLength;
-                char newChar = abcChars[rnd];
-                chrm->GetGenes()->at(g) = newChar;
+                c.genes()[g] = abcChars[rand() % sizeof(abcChars)];
             }
         }
     }
 }
-

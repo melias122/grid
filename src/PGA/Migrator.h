@@ -1,13 +1,13 @@
 #ifndef MIGRATOR_H
 #define MIGRATOR_H
 
-#include <vector>
-#include <map>
 #include "Chromosome.h"
+#include <map>
+#include <vector>
 
-enum Migrate {
-    rnd, best, worst
-};
+enum Migrate { rnd,
+    best,
+    worst };
 
 struct MigrationModel {
     int gaId;
@@ -18,18 +18,17 @@ class Migrator {
 public:
     Migrator();
 
-    void buildTopology(int senderID, Migrate send, int receiverID, Migrate replace);
-    void requestMigration(int senderID, std::vector<Chromosome *> toSend, std::vector<Chromosome *>& toReceive);
-
-
+    void buildTopology(int senderID, Migrate send, int receiverID,
+        Migrate replace);
+    void requestMigration(int senderID, const Population& toSend,
+        Population& toReceive);
 
 private:
-    std::map<int, std::vector<MigrationModel>> senders;
-    std::map<int, std::vector<MigrationModel>> receivers;
+    std::map<int, std::vector<MigrationModel> > senders;
+    std::map<int, std::vector<MigrationModel> > receivers;
     //
-    void receive(int sender, int receiver, std::vector<Chromosome *> toReceive);
-    void send(int sender, int receiver, std::vector<Chromosome *> toSend);
-
+    void receive(int sender, int receiver, Population toReceive);
+    void send(int sender, int receiver, Population toSend);
 };
 
-#endif 
+#endif

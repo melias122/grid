@@ -1,61 +1,37 @@
 #ifndef CHROMOSOME_H
 #define CHROMOSOME_H
 
+#include <string>
 #include <vector>
 
 class Chromosome {
 public:
     Chromosome();
-    Chromosome(const Chromosome& other);
 
-    float GetScore() {
-        return score;
-    }
+    double score() const { return m_score; }
 
-    void SetScore(float val) {
-        score = val;
-    }
+    double setScore(double score) { m_score = score; }
 
-    int GetLength() {
-        return length;
-    }
+    int size() const { return m_genes.size(); }
 
-    void SetLength(int val) {
-        length = val;
-    }
+    std::string& genes() { return m_genes; }
 
-    std::vector<char> * GetGenes() {
-        return &genes;
-    }
-
-    void SetGenes(std::vector<char> val) {
-        genes = val;
-    }
-
-    // for sort
-
-    bool operator<(const Chromosome& other) const {
-        return (score < other.score);
-    }
-    
-     bool operator>(const Chromosome& other) const {
-        return (score > other.score);
-    }
-
-    struct PointerCompare {
-
-        bool operator()(const Chromosome* l, const Chromosome* r) {
-            return *l > *r;
+    struct byBestScore {
+        inline bool operator()(const Chromosome& c1, const Chromosome& c2)
+        {
+            return (c1.m_score > c2.m_score);
         }
     };
 
+    friend std::ostream& operator<<(std::ostream& os, const Chromosome& dt);
 
-    void rndAbcPermutation(std::vector<char> &out);
+private:
+    std::string rndAbcPermutation();
 
-protected:
-    std::vector<char> genes;
-    float score;
-    int length;
+    std::string m_genes;
+    double m_score{ 0.0 };
 };
+
+using Population = std::vector<Chromosome>;
 
 #endif // CHROMOSOME_H
