@@ -13,7 +13,9 @@ endif(NOT MPI_FOUND)
 include_directories(SYSTEM
 	${MPI_INCLUDE_PATH}
 	src
+	src/PGA
 )
 
-add_subdirectory(example)
 add_subdirectory(src)
+add_subdirectory(project)
+
