@@ -9,11 +9,8 @@ public:
     Chromosome();
 
     double score() const { return m_score; }
-
-    double setScore(double score) { m_score = score; }
-
+    void setScore(double score) { m_score = score; }
     int size() const { return m_genes.size(); }
-
     std::string& genes() { return m_genes; }
 
     struct byBestScore {
