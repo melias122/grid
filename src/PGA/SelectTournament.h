@@ -6,12 +6,8 @@
 class SelectTournament : public Select
 {
 public:
-    SelectTournament()
-        : Select()
-    {
-    }
-    SelectTournament(unsigned int subPopCnt)
-        : Select(subPopCnt)
+    SelectTournament(uint n)
+        : Select(n)
     {
     }
 

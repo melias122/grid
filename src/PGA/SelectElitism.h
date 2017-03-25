@@ -6,13 +6,8 @@
 class SelectElitism : public Select
 {
 public:
-    SelectElitism()
-        : Select()
-    {
-    }
-
-    SelectElitism(unsigned int subPopCnt)
-        : Select(subPopCnt)
+    SelectElitism(uint n)
+        : Select(n)
     {
     }
 

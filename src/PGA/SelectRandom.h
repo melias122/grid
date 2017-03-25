@@ -6,13 +6,8 @@
 class SelectRandom : public Select
 {
 public:
-    SelectRandom()
-        : Select()
-    {
-    }
-
-    SelectRandom(unsigned int subPopCnt)
-        : Select(subPopCnt)
+    SelectRandom(uint n)
+        : Select(n)
     {
     }
 

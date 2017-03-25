@@ -4,7 +4,8 @@
 Population SelectTournament::select(Population p)
 {
     Population newp;
-    for (int i = 0; i < GetSubPopulationSize(); i++) {
+    newp.reserve(p.size());
+    for (int i = 0; i < m_subpopulationSize; i++) {
         int a = rand() % p.size();
         int b = rand() % p.size();
         Chromosome &ca = p[a];
