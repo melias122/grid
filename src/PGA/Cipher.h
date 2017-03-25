@@ -6,19 +6,21 @@
 
 #include "Chromosome.h"
 
+using namespace std;
+
 class Cipher {
 public:
-    void loadCipherText(std::string fName);
-    //    std::string encrypt(std::vector<char>& key);
-    std::string decrypt(const std::__cxx11::string& key);
+    virtual string encrypt(const string& plainText, const string& key) = 0;
+    virtual string decrypt(const string& cipherText, const string& key) = 0;
+};
 
-    std::vector<int> getCipherText() { return cipherText; }
+class Monoalphabetic : public Cipher {
+public:
+    string encrypt(const string& plainText, const string& key) override;
+    string decrypt(const string& cipherText, const string& key) override;
 
-    std::string getPlainText() { return plainText; }
-
-protected:
-    std::vector<int> cipherText;
-    std::string plainText;
+    // pomocna funkcia
+    static string createDecryptionKey(string encryptionKey);
 };
 
 #endif // CIPHER_H
