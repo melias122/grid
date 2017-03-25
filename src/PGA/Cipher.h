@@ -8,6 +8,7 @@ using namespace std;
 class Cipher
 {
 public:
+    ~Cipher() {}
     virtual void decrypt(const string &key, string &plaintext) = 0;
 };
 
