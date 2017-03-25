@@ -58,7 +58,7 @@ double L1DistanceMonograms::evaluate(const string& in)
         sum += fabs(m_monograms[i] - (m[i] / div));
     }
 
-    return sum;
+    return -sum;
 }
 
 L1DistanceBigrams::L1DistanceBigrams(const vector<vector<double> >& referenceBigrams)
@@ -98,7 +98,7 @@ double L1DistanceBigrams::evaluate(const string& in)
         }
     }
 
-    return sum;
+    return -sum;
 }
 
 L1DistanceTrigrams::L1DistanceTrigrams(const vector<vector<vector<double> > >& referenceTrigrams)
@@ -129,5 +129,5 @@ double L1DistanceTrigrams::evaluate(const std::string& in)
         }
     }
 
-    return sum;
+    return -sum;
 }
