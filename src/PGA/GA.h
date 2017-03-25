@@ -6,27 +6,28 @@
 #include "Migrator.h"
 #include "SchemeGA.h"
 
+#include <memory>
+
 class GA {
 public:
-    GA();
-
-    SchemeGA* GetScheme() { return scheme; }
-    void SetScheme(SchemeGA* val) { scheme = val; }
-
-    void init(SchemeGA* sch, Cipher* c, Fitness* f);
-    void setMigrator(Migrator* m);
+    GA(SchemeGA* scheme, Cipher* cipher, Fitness* fitness, Migrator* migrator = nullptr);
+    bool setCiphertextFromFile(string path);
     void start();
     Population applySelGenOp(SelGenOp& op, const Population& subPop);
 
-    int getID() { return id; }
+    int getID() { return m_id; }
 
-protected:
-    int id{ 0 };
-    Population population;
-    SchemeGA* scheme;
-    Cipher* cipher;
-    Fitness* fitness;
-    Migrator* migrator = nullptr;
+private:
+    void init();
+
+    int m_id{ 0 };
+    string m_cipherText;
+    Population m_population;
+
+    unique_ptr<SchemeGA> m_scheme;
+    unique_ptr<Cipher> m_cipher;
+    unique_ptr<Fitness> m_fitness;
+    unique_ptr<Migrator> m_migrator;
 };
 
 #endif // GA_H

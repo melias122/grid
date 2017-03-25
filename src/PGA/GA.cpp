@@ -4,67 +4,61 @@
 #include "Migrator.h"
 #include "SelectElitism.h"
 #include "SelectTournament.h"
-#include <chrono>
+
 #include <iostream>
-#include <iostream>
-#include <mutex>
-#include <thread>
 
 using namespace std;
 
-mutex g_display_mutex;
-
-static int idGen = 0;
-
-GA::GA() { id = ++idGen; }
-
-void GA::init(SchemeGA* sch, Cipher* c, Fitness* f)
+GA::GA(SchemeGA* scheme, Cipher* cipher, Fitness* fitness, Migrator* migrator)
+    : m_scheme{ scheme }
+    , m_cipher{ cipher }
+    , m_fitness{ fitness }
+    , m_migrator{ migrator }
 {
-    cout << "GA::init" << endl;
-    scheme = sch;
-    cipher = c;
-    fitness = f;
+    static int id{ 0 };
+    m_id = ++id;
+}
+
+void GA::init()
+{
     // init podla schemy
-    for (int i = 0; i < scheme->initialPopulation; i++) {
-        Chromosome c;
-        population.push_back(c);
-        string txt = cipher->decrypt(c.genes());
-        double score = fitness->evaluate(txt);
+    m_population.resize(m_scheme->initialPopulation);
+    for (Chromosome& c : m_population) {
+        string txt = m_cipher->decrypt(m_cipherText, c.genes());
+        double score = m_fitness->evaluate(txt);
         c.setScore(score);
     }
 }
 
-void GA::setMigrator(Migrator* m) { migrator = m; }
-
 void GA::start()
 {
-
-    thread::id this_id = this_thread::get_id();
-
-    g_display_mutex.lock();
-    cout << "GA started on thread " << this_id << " ...\n";
-    g_display_mutex.unlock();
-
-    for (int i = 1; i <= scheme->maxIteration; i++) {
+    init();
+    for (int i = 1; i <= m_scheme->maxIteration; i++) {
         Population newPopulation;
-        if (i % scheme->migrationTime == 0 && migrator != nullptr) {
-            migrator->requestMigration(id, population, newPopulation);
-            for (int j = 0; j < newPopulation.size(); j++) {
-                population.push_back(newPopulation[j]);
-            }
+        if (m_migrator && ((m_scheme->migrationTime & i) == 0)) {
+            m_migrator->requestMigration(m_id, m_population, newPopulation);
+            m_population.insert(end(m_population), begin(newPopulation), end(newPopulation));
         }
 
         newPopulation.clear();
-        for (int j = 0; j < scheme->genOps.size(); j++) {
-            Population selected = applySelGenOp(scheme->genOps[j], population);
+        for (int j = 0; j < m_scheme->genOps.size(); j++) {
+            Population selected = applySelGenOp(m_scheme->genOps[j], m_population);
             newPopulation.insert(end(newPopulation), begin(selected), end(selected));
         }
 
-        population = newPopulation;
+        m_population = newPopulation;
     }
 
-    string txt = cipher->decrypt(population[0].genes());
-    cout << txt << "\n";
+    string pt = "certainlyheintrudeshimselfintothescenessometimesforsheerselfdisplaybutalsoforavarietyofotherpurposesallofwhicharecarefullyexaminedpaulkorshinpennsylvaniasuppliesamasterlyanalysisofjohnsonsconversationasrecordedbyboswellsometimesabitlongafterthefactitmaybetruethatboswellsformalhighlygeneralizeddictionquitepossiblyencouragedbymaloneisnolongertoourtastethatisnotthedictionoftwentiethcenturybiographersbutifsosomuchtheworseforthcenturyreadersofbiographydonnaheilandvassarcommentsonothercontemporarybiographiesofjohnsonshecommentsthatboswellpresentsjohnsonasadivinefigurewithboswellashispriesttheparadoxinherentintheconceptofdivinityincarnateistheepitomeofthedichotomyinboswellsportrayalofhissubjectboswellreveresjohnsonandatthesametimemanipulateshimcontinuallygregclinghamfordhamtheeditormodestlyplaceshisessaylastheattacksthecomplexquestionoftruthvsauthenticityinboswellsportraitofjohnsonandthereinliestheartofbiographythisisanexceptionallyfinecollectionofscholarlyessaysgreatlytobevaluedbyreadersinte";
+    for (auto& c : m_population) {
+        string x = m_cipher->decrypt(m_cipherText, c.genes());
+        if (x == pt) {
+            cout << "found key = " << c << endl;
+        }
+    }
+
+        string txt = m_cipher->decrypt(m_cipherText, m_population[0].genes());
+        cout << "out: " << txt << "\n";
 }
 
 Population GA::applySelGenOp(SelGenOp& sgo, const Population& subPop)
@@ -72,9 +66,9 @@ Population GA::applySelGenOp(SelGenOp& sgo, const Population& subPop)
     Population selected = sgo.sel->select(subPop);
     sgo.op->apply(selected);
 
-    for (int j = 0; j < selected.size(); j++) {
-        string txt = cipher->decrypt(selected[j].genes());
-        double score = fitness->evaluate(txt);
+    for (size_t j = 0; j < selected.size(); j++) {
+        string txt = m_cipher->decrypt(m_cipherText, selected[j].genes());
+        double score = m_fitness->evaluate(txt);
         selected[j].setScore(score);
     }
 
@@ -83,4 +77,13 @@ Population GA::applySelGenOp(SelGenOp& sgo, const Population& subPop)
     }
 
     return selected;
+}
+
+bool GA::setCiphertextFromFile(string path)
+{
+    bool ok = Helpers::readFile(m_cipherText, path);
+    if (!ok) {
+        cout << "GA: could not load " << path << "\n";
+    }
+    return ok;
 }
