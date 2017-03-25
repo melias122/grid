@@ -44,8 +44,8 @@ void Migrator::buildTopology(int sender, Migrate send, int receiver,
     (*receivers.find(receiver)).second.push_back(mmr);
 }
 
-void Migrator::requestMigration(int senderID, const Population& toSend,
-    Population& toReceive)
+void Migrator::requestMigration(int senderID, const Population &toSend,
+    Population &toReceive)
 {
     // zatial test cout -> mal by podla ID poslat zoznam chromosomov v nejakom
     // formate co sa da poslat medzi

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-GA::GA(SchemeGA* scheme, Cipher* cipher, Fitness* fitness, Migrator* migrator)
+GA::GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator)
     : m_scheme{ scheme }
     , m_cipher{ cipher }
     , m_fitness{ fitness }
@@ -21,10 +21,10 @@ GA::GA(SchemeGA* scheme, Cipher* cipher, Fitness* fitness, Migrator* migrator)
 
 void GA::init()
 {
-    // init podla schemy
+    string txt;
     m_population.resize(m_scheme->initialPopulation);
-    for (Chromosome& c : m_population) {
-        string txt = m_cipher->decrypt(m_cipherText, c.genes());
+    for (Chromosome &c : m_population) {
+        m_cipher->decrypt(c.genes(), txt);
         double score = m_fitness->evaluate(txt);
         c.setScore(score);
     }
@@ -37,7 +37,8 @@ void GA::start()
         Population newPopulation;
         if (m_migrator && ((m_scheme->migrationTime & i) == 0)) {
             m_migrator->requestMigration(m_id, m_population, newPopulation);
-            m_population.insert(end(m_population), begin(newPopulation), end(newPopulation));
+            m_population.insert(end(m_population), begin(newPopulation),
+                end(newPopulation));
         }
 
         newPopulation.clear();
@@ -49,26 +50,18 @@ void GA::start()
         m_population = newPopulation;
     }
 
-    string pt = "certainlyheintrudeshimselfintothescenessometimesforsheerselfdisplaybutalsoforavarietyofotherpurposesallofwhicharecarefullyexaminedpaulkorshinpennsylvaniasuppliesamasterlyanalysisofjohnsonsconversationasrecordedbyboswellsometimesabitlongafterthefactitmaybetruethatboswellsformalhighlygeneralizeddictionquitepossiblyencouragedbymaloneisnolongertoourtastethatisnotthedictionoftwentiethcenturybiographersbutifsosomuchtheworseforthcenturyreadersofbiographydonnaheilandvassarcommentsonothercontemporarybiographiesofjohnsonshecommentsthatboswellpresentsjohnsonasadivinefigurewithboswellashispriesttheparadoxinherentintheconceptofdivinityincarnateistheepitomeofthedichotomyinboswellsportrayalofhissubjectboswellreveresjohnsonandatthesametimemanipulateshimcontinuallygregclinghamfordhamtheeditormodestlyplaceshisessaylastheattacksthecomplexquestionoftruthvsauthenticityinboswellsportraitofjohnsonandthereinliestheartofbiographythisisanexceptionallyfinecollectionofscholarlyessaysgreatlytobevaluedbyreadersinte";
-    for (auto& c : m_population) {
-        string x = m_cipher->decrypt(m_cipherText, c.genes());
-        if (x == pt) {
-            cout << "found key = " << c << endl;
-        }
-    }
-
-        string txt = m_cipher->decrypt(m_cipherText, m_population[0].genes());
-        cout << "out: " << txt << "\n";
+    m_cipher->decrypt(m_population[0].genes(), m_plaintext);
+    cout << "out: " << m_plaintext << "\n";
 }
 
-Population GA::applySelGenOp(SelGenOp& sgo, const Population& subPop)
+Population GA::applySelGenOp(SelGenOp &sgo, const Population &subPop)
 {
     Population selected = sgo.sel->select(subPop);
     sgo.op->apply(selected);
 
     for (size_t j = 0; j < selected.size(); j++) {
-        string txt = m_cipher->decrypt(m_cipherText, selected[j].genes());
-        double score = m_fitness->evaluate(txt);
+        m_cipher->decrypt(selected[j].genes(), m_plaintext);
+        double score = m_fitness->evaluate(m_plaintext);
         selected[j].setScore(score);
     }
 
@@ -77,13 +70,4 @@ Population GA::applySelGenOp(SelGenOp& sgo, const Population& subPop)
     }
 
     return selected;
-}
-
-bool GA::setCiphertextFromFile(string path)
-{
-    bool ok = Helpers::readFile(m_cipherText, path);
-    if (!ok) {
-        cout << "GA: could not load " << path << "\n";
-    }
-    return ok;
 }

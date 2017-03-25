@@ -17,11 +17,12 @@ const char abcChars[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
     'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
     's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 
-namespace Helpers {
+namespace Helpers
+{
 
 using namespace std;
 
-static bool readFile(string& content, string path)
+static bool readFile(string &content, string path)
 {
     ifstream ifs(path);
     if (!ifs.is_open()) {
@@ -34,9 +35,9 @@ static bool readFile(string& content, string path)
 }
 
 // https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
-static vector<vector<int> > comb(int N, int K)
+static vector<vector<int>> comb(int N, int K)
 {
-    vector<vector<int> > retVal;
+    vector<vector<int>> retVal;
     string bitmask(K, 1); // K leading 1's
     bitmask.resize(N, 0); // N-K trailing 0's
 

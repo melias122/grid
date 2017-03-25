@@ -9,9 +9,9 @@ GeneticOperationMutationSwap::GeneticOperationMutationSwap(int swapCnt)
     swapsCount = swapCnt;
 }
 
-void GeneticOperationMutationSwap::apply(Population& population)
+void GeneticOperationMutationSwap::apply(Population &population)
 {
-    for (Chromosome& ch : population) {
+    for (Chromosome &ch : population) {
         int i = rand() % ch.size();
         int j = rand() % ch.size();
         std::swap(ch.genes()[i], ch.genes()[j]);

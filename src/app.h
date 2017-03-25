@@ -3,10 +3,11 @@
 
 #include <string>
 
-class Application {
+class Application
+{
 public:
     Application() {}
-    Application(int argc, char** argv);
+    Application(int argc, char **argv);
     ~Application();
 
     int rank();
@@ -16,7 +17,8 @@ private:
     int m_rank, m_size;
 };
 
-class Bruteforcer {
+class Bruteforcer
+{
 public:
     ~Bruteforcer() {}
 
@@ -28,21 +30,21 @@ public:
 struct Runner {
     Runner() = delete;
 
-    static void run(Bruteforcer* b)
+    static void run(Bruteforcer *b)
     {
         Application app;
         b->run(app.rank(), app.size());
     }
 };
 
-void sendString(int dest, int tag, const std::string& s);
+void sendString(int dest, int tag, const std::string &s);
 std::string recvString(int source, int tag);
 
 // experimental communicator
 template <typename T>
 struct comm {
 public:
-    void send(int dest, int tag, const T& data, int size = 1);
+    void send(int dest, int tag, const T &data, int size = 1);
     T recv(int source, int tag, int size = 1) const;
 };
 

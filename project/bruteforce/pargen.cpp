@@ -6,7 +6,8 @@
 
 using namespace std;
 
-class Password : public Bruteforcer {
+class Password : public Bruteforcer
+{
 public:
     Password(int max)
         : m_max{ max }
@@ -22,13 +23,13 @@ public:
 
     void print()
     {
-        for (const auto& r : m_results) {
+        for (const auto &r : m_results) {
             cout << r << "\n";
         }
     }
 
 private:
-    void generate(int level, int maxLevel, string& pwd)
+    void generate(int level, int maxLevel, string &pwd)
     {
         if (level == maxLevel) {
             m_results.insert(string(pwd));
@@ -44,7 +45,7 @@ private:
     set<string> m_results;
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     int i;
     try {

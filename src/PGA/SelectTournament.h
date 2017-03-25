@@ -3,7 +3,8 @@
 
 #include "Select.h"
 
-class SelectTournament : public Select {
+class SelectTournament : public Select
+{
 public:
     SelectTournament()
         : Select()

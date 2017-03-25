@@ -3,9 +3,10 @@
 
 #include "GeneticOperation.h"
 
-class GeneticOperationMutationSwapAll : public GeneticOperation {
+class GeneticOperationMutationSwapAll : public GeneticOperation
+{
 public:
-    void apply(Population& pop) override;
+    void apply(Population &pop) override;
 };
 
 #endif

@@ -15,7 +15,7 @@ clang_format_all() {
 	find . \
 		 -name '*.h' \
 		 -o -name '*.cpp' \
-		| xargs clang-format -i -style=Webkit
+		| xargs clang-format -i -style=file
 }
 
 load_modules() {

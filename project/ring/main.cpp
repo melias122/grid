@@ -9,7 +9,8 @@ using namespace std;
 // next increment by 2
 // ...
 
-class ring_piece {
+class ring_piece
+{
 public:
     ring_piece(int id)
         : id{ id }
@@ -33,7 +34,7 @@ private:
     comm<int> co;
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     Application app;
 

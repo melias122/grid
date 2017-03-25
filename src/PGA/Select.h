@@ -3,7 +3,8 @@
 
 #include "Chromosome.h"
 
-class Select {
+class Select
+{
 public:
     Select();
 

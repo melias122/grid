@@ -6,12 +6,13 @@
 #include <vector>
 
 struct SelGenOp {
-    Select* sel;
-    GeneticOperation* op;
-    SelGenOp* next{ 0 };
+    Select *sel;
+    GeneticOperation *op;
+    SelGenOp *next{ 0 };
 };
 
-class SchemeGA {
+class SchemeGA
+{
 public:
     unsigned int migrationTime;
     unsigned int maxIteration;
@@ -23,7 +24,7 @@ public:
 
     SchemeGA(unsigned int mi, unsigned int mt, unsigned int ip);
 
-    SchemeGA(const SchemeGA& other);
+    SchemeGA(const SchemeGA &other);
 };
 
 #endif

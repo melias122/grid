@@ -3,12 +3,13 @@
 
 #include "GeneticOperation.h"
 
-class GeneticOperationMutationSwap : public GeneticOperation {
+class GeneticOperationMutationSwap : public GeneticOperation
+{
 public:
     GeneticOperationMutationSwap();
     GeneticOperationMutationSwap(int swapCnt);
 
-    void apply(Population& population) override;
+    void apply(Population &population) override;
 
 private:
     int swapsCount;

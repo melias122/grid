@@ -3,9 +3,10 @@
 
 #include "GeneticOperation.h"
 
-class GeneticOperationCrossover : public GeneticOperation {
+class GeneticOperationCrossover : public GeneticOperation
+{
 public:
-    void apply(Population& pop) override;
+    void apply(Population &pop) override;
 
 private:
     uint m_returnCount{ 1 };

@@ -33,12 +33,9 @@ using namespace std;
 
 #define println(msg) cout << msg << endl
 
-/*
- *
- */
-GA* GATest()
+GA *GATest()
 {
-    SchemeGA* scheme = new SchemeGA(8000, 3000, 200);
+    SchemeGA *scheme = new SchemeGA(8000, 3000, 200);
 
     SelGenOp sg0; // pick the best one without any changes
     sg0.sel = new SelectElitism(1);
@@ -66,25 +63,23 @@ GA* GATest()
 
     println("GA");
 
-    GA* ga = new GA(scheme,
-        new Monoalphabetic,
+    return new GA(scheme,
+        Monoalphabetic::fromFile("/home/melias122/code/grid/project/PGA/input/177_1000.txt"),
         L1DistanceBigrams::fromFile("/home/melias122/code/grid/project/PGA/input/fr_2.csv"));
-    ga->setCiphertextFromFile("/home/melias122/code/grid/project/PGA/input/177_1000.txt");
-    return ga;
 }
 
-void PGATest(vector<GA*>& gaPool)
+void PGATest(vector<GA *> &gaPool)
 {
     println("PGATest started");
 
-    Migrator* mig = new Migrator();
+    Migrator *mig = new Migrator();
     println("initialising migrator.");
 
     for (size_t i = 0; i < gaPool.size(); i++) {
-        GA* ga = gaPool[i];
+        GA *ga = gaPool[i];
         //        ga->setMigrator(mig);
         if (i > 0) {
-            GA* gaPrev = gaPool[i - 1];
+            GA *gaPrev = gaPool[i - 1];
             Migrate best = best;
             Migrate worst = worst;
 
@@ -95,7 +90,7 @@ void PGATest(vector<GA*>& gaPool)
 
     vector<thread> tl;
     for (size_t i = 0; i < gaPool.size(); i++) {
-        GA* ga = gaPool[i];
+        GA *ga = gaPool[i];
         tl.emplace_back(&GA::start, ga);
     }
 
@@ -108,7 +103,7 @@ void PGATest(vector<GA*>& gaPool)
     cout << "function end.\n";
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     srand(time(NULL));
 

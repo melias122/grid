@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void allPasswords(int level, int maxLevel, string& pwd, set<string>& results)
+void allPasswords(int level, int maxLevel, string &pwd, set<string> &results)
 {
     if (level == maxLevel) {
         results.insert(string(pwd));
@@ -16,14 +16,14 @@ void allPasswords(int level, int maxLevel, string& pwd, set<string>& results)
     }
 }
 
-void print(const set<string>& s)
+void print(const set<string> &s)
 {
-    for (const auto& r : s) {
+    for (const auto &r : s) {
         cout << r << "\n";
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 
     int i;

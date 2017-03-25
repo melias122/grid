@@ -13,7 +13,7 @@ std::string Chromosome::rndAbcPermutation()
     return perm;
 }
 
-std::ostream& operator<<(std::ostream& os, const Chromosome& c)
+std::ostream &operator<<(std::ostream &os, const Chromosome &c)
 {
     return os << c.m_genes;
 }

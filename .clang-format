@@ -1,4 +1,4 @@
----
+#---
 Language: Cpp
 BasedOnStyle: WebKit
 AlignTrailingComments: false
@@ -6,11 +6,10 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignEscapedNewlinesLeft: true
 IndentCaseLabels: false
-# SortIncludes: false
 BreakBeforeBraces: Linux
 PointerAlignment: Right
 Standard: Cpp11
 TabWidth: 4
 UseTab: Never
-# ColumnLimit: 0
-...
+ColumnLimit: 0
+#...

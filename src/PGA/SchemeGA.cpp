@@ -9,7 +9,7 @@ SchemeGA::SchemeGA(unsigned int mi, unsigned int mt, unsigned int ip)
     initialPopulation = ip;
 }
 
-SchemeGA::SchemeGA(const SchemeGA& other)
+SchemeGA::SchemeGA(const SchemeGA &other)
 {
     migrationTime = other.migrationTime;
     maxIteration = other.maxIteration;

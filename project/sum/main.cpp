@@ -5,7 +5,8 @@
 
 using namespace std;
 
-class sum_proc {
+class sum_proc
+{
 public:
     sum_proc(int rank, int world_size)
         : rank{ rank }
@@ -57,7 +58,7 @@ private:
     vector<int> values;
 };
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     Application app;
 

@@ -8,12 +8,12 @@
 
 #include <memory>
 
-class GA {
+class GA
+{
 public:
-    GA(SchemeGA* scheme, Cipher* cipher, Fitness* fitness, Migrator* migrator = nullptr);
-    bool setCiphertextFromFile(string path);
+    GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator = nullptr);
     void start();
-    Population applySelGenOp(SelGenOp& op, const Population& subPop);
+    Population applySelGenOp(SelGenOp &op, const Population &subPop);
 
     int getID() { return m_id; }
 
@@ -21,8 +21,8 @@ private:
     void init();
 
     int m_id{ 0 };
-    string m_cipherText;
     Population m_population;
+    string m_plaintext;
 
     unique_ptr<SchemeGA> m_scheme;
     unique_ptr<Cipher> m_cipher;

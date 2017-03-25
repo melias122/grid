@@ -3,7 +3,8 @@
 
 #include "Select.h"
 
-class SelectElitism : public Select {
+class SelectElitism : public Select
+{
 public:
     SelectElitism()
         : Select()

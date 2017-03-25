@@ -5,7 +5,7 @@
 #include <cassert>
 #include <typeinfo>
 
-Application::Application(int argc, char** argv)
+Application::Application(int argc, char **argv)
 {
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &m_size);
@@ -32,7 +32,7 @@ MPI_Datatype get_datatype()
 }
 
 template <typename T>
-void comm<T>::send(int dest, int tag, const T& data, int size)
+void comm<T>::send(int dest, int tag, const T &data, int size)
 {
     dest %= MPI::COMM_WORLD.Get_size();
     std::cout << MPI::COMM_WORLD.Get_rank() << " sending " << data << std::endl;
@@ -50,7 +50,7 @@ T comm<T>::recv(int source, int tag, int size) const
     return t;
 }
 
-void sendString(int dest, int tag, const std::string& s)
+void sendString(int dest, int tag, const std::string &s)
 {
     std::cout << "Debug/sendString: send " << s << " to: " << dest
               << " tag: " << tag << std::endl;

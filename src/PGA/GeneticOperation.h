@@ -3,11 +3,12 @@
 
 #include "Chromosome.h"
 
-class GeneticOperation {
+class GeneticOperation
+{
 public:
     ~GeneticOperation() {}
 
-    virtual void apply(Population& pop) {}
+    virtual void apply(Population &pop) {}
 };
 
 #endif

@@ -4,23 +4,24 @@
 #include <string>
 #include <vector>
 
-class Chromosome {
+class Chromosome
+{
 public:
     Chromosome();
 
     double score() const { return m_score; }
     void setScore(double score) { m_score = score; }
     int size() const { return m_genes.size(); }
-    std::string& genes() { return m_genes; }
+    std::string &genes() { return m_genes; }
 
     struct byBestScore {
-        inline bool operator()(const Chromosome& c1, const Chromosome& c2)
+        inline bool operator()(const Chromosome &c1, const Chromosome &c2)
         {
             return (c1.m_score > c2.m_score);
         }
     };
 
-    friend std::ostream& operator<<(std::ostream& os, const Chromosome& dt);
+    friend std::ostream &operator<<(std::ostream &os, const Chromosome &dt);
 
 private:
     std::string rndAbcPermutation();

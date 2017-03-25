@@ -19,9 +19,10 @@ string randomString(const int len)
     return s;
 }
 
-class Vigenere {
+class Vigenere
+{
 public:
-    string encrypt(const string& pt, const string& key)
+    string encrypt(const string &pt, const string &key)
     {
         string ct(pt.length(), 0);
         for (int i = 0; i < pt.length(); i++) {
@@ -31,7 +32,7 @@ public:
         return ct;
     }
 
-    string decrypt(const string& ct, const string& key)
+    string decrypt(const string &ct, const string &key)
     {
         string pt(ct.length(), 0);
         for (int i = 0; i < ct.length(); i++) {
@@ -42,7 +43,8 @@ public:
     }
 };
 
-class VigenereBreaker : public Bruteforcer {
+class VigenereBreaker : public Bruteforcer
+{
 public:
     VigenereBreaker(string ct, string pt, int maxKeyLength)
         : m_ct{ ct }
@@ -87,7 +89,7 @@ public:
     }
 
 private:
-    void recursive(int level, int maxLevel, string& key)
+    void recursive(int level, int maxLevel, string &key)
     {
         if (level < maxLevel) {
             for (int i = 0; i < 26 && !done; i++) {
@@ -128,7 +130,7 @@ int test()
     }
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 
     srand(time(NULL));

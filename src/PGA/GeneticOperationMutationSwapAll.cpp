@@ -2,9 +2,9 @@
 
 #include "Helpers.h"
 
-static std::vector<std::vector<int> > comb;
+static std::vector<std::vector<int>> comb;
 
-void GeneticOperationMutationSwapAll::apply(Population& pop)
+void GeneticOperationMutationSwapAll::apply(Population &pop)
 {
     if (comb.empty()) {
         comb = Helpers::comb(pop[0].size(), 2);

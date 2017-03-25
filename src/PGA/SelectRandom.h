@@ -3,7 +3,8 @@
 
 #include "Select.h"
 
-class SelectRandom : public Select {
+class SelectRandom : public Select
+{
 public:
     SelectRandom()
         : Select()
