@@ -19,30 +19,43 @@ clang_format_all() {
 }
 
 load_modules() {
-	module load cmake/3.1.0
-	module load gcc/6.3
-	module load mvapich2/2.2
+	if hash module 2>/dev/null; then
+		module load cmake/3.1.0
+		module load gcc/6.3
+		module load mvapich2/2.2
+	fi
 }
 
-build_all() {
+build_debug() {
 	clang_format_all
 	load_modules
-	mkdir -p $BUILD_DIR
-	cd $BUILD_DIR
-	cmake ..
+	mkdir -p debug
+	cd debug
+	cmake -DCMAKE_BUILD_TYPE=Debug ..
 	make -j $(nproc)
 }
 
+build_release() {
+	clang_format_all
+	load_modules
+	mkdir -p release
+	cd release
+	cmake -DCMAKE_BUILD_TYPE=Release ..
+	make -j $(nproc)
+}
+
+
 #run() {
-#	./$BUILD_DIR/
 #}
 
-while getopts ":ar:" opt; do
+while getopts ":adr:" opt; do
 	case "${opt}" in
-		a) build_all
+		a) build_release
 		   ;;
-		r) run opt
+		d) build_debug
 		   ;;
+#		r) run opt
+#		   ;;
 		*) usage
 		   ;;
 	esac
