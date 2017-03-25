@@ -2,142 +2,132 @@
 #include "Chromosome.h"
 #include "Helpers.h"
 #include "math.h"
-#include <string.h>
 
-FitnessL1::FitnessL1(int n) { init(n); }
+#include <string>
+#include <tuple>
 
-FitnessL1::FitnessL1(const FitnessL1& other) { init(other.n); }
+using namespace std;
 
-FitnessL1::~FitnessL1()
+static vector<tuple<string, double> > parseCsv(string path)
 {
-    if (refMono) {
-        delete refMono;
-    }
-    if (refBi) {
-        delete[] refBi;
+    string s, first, second, line;
+    if (!Helpers::readFile(s, path)) {
+        return {};
     }
 
-    if (refTri) {
-        delete[] refTri;
+    stringstream ss(s);
+    vector<tuple<string, double> > values;
+    while (getline(ss, line, '\n')) {
+        stringstream ls(line);
+        getline(ls, first, ',');
+        getline(ls, second, ',');
+        values.push_back(make_tuple(first, stod(second)));
     }
+    return values;
 }
 
-void FitnessL1::init(int n)
+L1DistanceMonograms::L1DistanceMonograms(const vector<double>& referenceMonograms)
+    : m_monograms{ referenceMonograms }
 {
-    n = n;
-    switch (n) {
-    case 1: {
-        refMono = new double[26]();
-        Helpers::readReferenceMonograms(refMono);
-    } break;
-    case 2: {
-        refBi = new double*[26];
-        for (int i = 0; i < 26; i++) {
-            refBi[i] = new double[26]();
-            memset(refBi[i], 0, 26);
-        }
-        Helpers::readReferenceBigrams(refBi);
-
-    } break;
-    case 3: {
-        refTri = new double**[26];
-        for (int i = 0; i < 26; i++) {
-            refTri[i] = new double*[26];
-            for (int j = 0; j < 26; j++) {
-                refTri[i][j] = new double[26]();
-            }
-        }
-        Helpers::readReferenceTrigrams(refTri);
-
-    } break;
-    };
 }
 
-double FitnessL1::evaluate(std::string& in)
+L1DistanceMonograms* L1DistanceMonograms::fromFile(string path)
 {
-    //	std::cout << "FitnessL1::evaluate" << std::endl;
-    double score = 0;
-    switch (n) {
-    case 1: {
-        score = L1DistanceMonograms(in);
-    } break;
-    case 2: {
-        score = L1DistanceBigrams(in);
-    } break;
-    case 3: {
-        score = L1DistanceTrigrams(in);
-    } break;
+    auto values = parseCsv(path);
+
+    vector<double> monograms(26, 0);
+    for (const tuple<string, double>& t : values) {
+        string s = get<0>(t);
+        monograms[s[0] - 'a'] = get<1>(t);
     }
-    return -score;
+
+    return new L1DistanceMonograms(monograms);
 }
 
-double FitnessL1::L1DistanceMonograms(std::string& in)
+double L1DistanceMonograms::evaluate(const string& in)
 {
-    double* m = new double[26]();
+    double m[26] = { 0 };
+    double sum = 0, div = in.length();
 
     for (int i = 0; i < in.length(); i++) {
         char a = in[i];
-        m[a - 'a'] += 1.0f;
-    }
-    double sum = 0;
-    double div = in.length();
-    for (int i = 0; i < 26; i++) {
-        double nv = refMono[i] - (m[i] / div);
-        sum += fabs(nv);
+        m[a - 'a']++;
     }
 
-    delete m;
+    for (int i = 0; i < 26; i++) {
+        sum += fabs(m_monograms[i] - (m[i] / div));
+    }
+
     return sum;
 }
 
-double FitnessL1::L1DistanceBigrams(std::string& in)
+L1DistanceBigrams::L1DistanceBigrams(const vector<vector<double> >& referenceBigrams)
+    : m_bigrams{ referenceBigrams }
 {
-    double m[26][26];
+}
 
-    std::cout << "x" << std::endl;
-    for (int i = 0; i < in.length() - 1; i++) {
-        std::cout << in[i] << " " << in[i + 1] << std::endl;
-        //		m[in[i] - 'a'][in[i + 1] - 'a'] += 1.0f;
+L1DistanceBigrams* L1DistanceBigrams::fromFile(string path)
+{
+    auto values = parseCsv(path);
+
+    vector<vector<double> > bigrams(26);
+    for (vector<double>& v : bigrams) {
+        v.resize(26, .0);
     }
 
-    double sum = 0;
-    double div = in.length() - 1;
-    std::cout << "x" << std::endl;
+    for (const tuple<string, double>& t : values) {
+        string s = get<0>(t);
+        bigrams[s[0] - 'a'][s[1] - 'a'] = get<1>(t);
+    }
+
+    return new L1DistanceBigrams(bigrams);
+}
+
+double L1DistanceBigrams::evaluate(const string& in)
+{
+    double m[26][26] = { 0 };
+    double sum = 0, div = in.length() - 1;
+
+    for (size_t i = 0; i < in.length() - 1; i++) {
+        m[in[i] - 'a'][in[i + 1] - 'a'] += 1.0;
+    }
+
     for (int i = 0; i < 26; i++) {
         for (int j = 0; j < 26; j++) {
-            double nv = refBi[i][j] - (m[i][j] / div);
-            sum += fabs(nv);
+            sum += fabs(m_bigrams[i][j] - (m[i][j] / div));
         }
     }
 
     return sum;
 }
 
-double FitnessL1::L1DistanceTrigrams(std::string& in)
+L1DistanceTrigrams::L1DistanceTrigrams(const vector<vector<vector<double> > >& referenceTrigrams)
 {
-    double*** m = new double**[26];
-    for (int i = 0; i < 26; i++) {
-        m[i] = new double*[26];
-        for (int j = 0; j < 26; j++) {
-            m[i][j] = new double[26]();
-        }
-    }
-    for (int i = 0; i < in.length() - 2; i++) {
+}
+
+L1DistanceTrigrams* L1DistanceTrigrams::fromFile(std::string path)
+{
+}
+
+double L1DistanceTrigrams::evaluate(const std::string& in)
+{
+    double m[26][26][26] = { 0 };
+    double sum = 0, div = in.length() - 2;
+
+    for (size_t i = 0; i < in.length() - 2; i++) {
         char a = in[i];
         char b = in[i + 1];
         char c = in[i + 2];
         m[a - 'a'][b - 'a'][c - 'a'] += 1.0f;
     }
-    double sum = 0;
-    double div = in.length() - 2;
+
     for (int i = 0; i < 26; i++) {
         for (int j = 0; j < 26; j++) {
             for (int k = 0; k < 26; k++) {
-                double nv = refTri[i][j][k] - (m[i][j][k] / div);
-                sum += fabs(nv);
+                sum += fabs(m_trigrams[i][j][k] - (m[i][j][k] / div));
             }
         }
     }
-    delete[] m;
+
     return sum;
 }

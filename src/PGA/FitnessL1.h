@@ -1,30 +1,41 @@
 #ifndef FITNESS_L1_H
 #define FITNESS_L1_H
 
-//#include <vector>
-//#include <string>
 #include "Fitness.h"
-//
 
-class FitnessL1 : public Fitness {
+#include <vector>
+
+class L1DistanceMonograms : public Fitness {
 public:
-    FitnessL1(int n);
-    FitnessL1(const FitnessL1& other);
-    ~FitnessL1();
+    L1DistanceMonograms(const std::vector<double>& referenceMonograms);
+    static L1DistanceMonograms* fromFile(std::string path);
 
-    void init(int n);
-    double evaluate(std::string& in);
-
-protected:
-    int n;
-    double* refMono;
-    double** refBi;
-    double*** refTri;
+    double evaluate(const std::string& in) override;
 
 private:
-    double L1DistanceMonograms(std::string& in);
-    double L1DistanceBigrams(std::string& in);
-    double L1DistanceTrigrams(std::string& in);
+    std::vector<double> m_monograms;
+};
+
+class L1DistanceBigrams : public Fitness {
+public:
+    L1DistanceBigrams(const std::vector<std::vector<double> >& referenceBigrams);
+    static L1DistanceBigrams* fromFile(std::string path);
+
+    double evaluate(const std::string& in) override;
+
+private:
+    std::vector<std::vector<double> > m_bigrams;
+};
+
+class L1DistanceTrigrams : public Fitness {
+public:
+    L1DistanceTrigrams(const std::vector<std::vector<std::vector<double> > >& referenceTrigrams);
+    L1DistanceTrigrams* fromFile(std::string path);
+
+    double evaluate(const std::string& in);
+
+private:
+    std::vector<std::vector<std::vector<double> > > m_trigrams;
 };
 
 #endif // FITNESS_L1_H
