@@ -1,8 +1,9 @@
 #!/bin/bash
+set -e
 
 CC=mpicc
 CXX=mpicxx
-BUILD_DIR=build
+BUILD_DIR=release
 
 usage() {
 	echo "Usage: $0 [-a] [-r project]" 1>&2
@@ -11,11 +12,15 @@ usage() {
 	exit 1
 }
 
+build_boost() {
+	if [ ! -f vendor/.boost.lock ]; then
+		scripts/build_boost.sh
+	fi
+}
+
 clang_format_all() {
-	find . \
-		 -name '*.h' \
-		 -o -name '*.cpp' \
-		| xargs clang-format -i -style=file
+	find src/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
+	find project/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
 }
 
 load_modules() {
@@ -26,21 +31,13 @@ load_modules() {
 	fi
 }
 
-build_debug() {
-	clang_format_all
+build_all() {
 	load_modules
-	mkdir -p debug
-	cd debug
-	cmake -DCMAKE_BUILD_TYPE=Debug ..
-	make -j $(nproc)
-}
-
-build_release() {
+	build_boost
 	clang_format_all
-	load_modules
-	mkdir -p release
-	cd release
-	cmake -DCMAKE_BUILD_TYPE=Release ..
+	mkdir -p $BUILD_DIR
+	cd $BUILD_DIR
+	cmake ..
 	make -j $(nproc)
 }
 
@@ -50,9 +47,7 @@ build_release() {
 
 while getopts ":adr:" opt; do
 	case "${opt}" in
-		a) build_release
-		   ;;
-		d) build_debug
+		a) build_all
 		   ;;
 #		r) run opt
 #		   ;;
