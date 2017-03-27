@@ -11,7 +11,7 @@ public:
         : m_subpopulationSize{ subpopulationSize }
     {
     }
-    virtual Population select(Population p) { return p; }
+    virtual Population select(Population p) = 0;
 
 protected:
     uint m_subpopulationSize{ 0 };
