@@ -2,36 +2,77 @@
 #define MIGRATOR_H
 
 #include "Chromosome.h"
+
+#include <boost/mpi.hpp>
 #include <map>
-#include <vector>
+#include <set>
 
-enum Migrate {
-    rnd,
-    best,
-    worst
+struct Migration {
+    enum class Type {
+        Random,
+        Best,
+        Worst
+    };
+
+    Migration(Type type, int id)
+        : type{ type }
+        , id{ id }
+    {
+    }
+
+    int id;
+    Type type;
 };
 
-struct MigrationModel {
-    int gaId;
-    Migrate migrationType;
-};
+inline bool operator<(const Migration &a, const Migration &b)
+{
+    return a.id < b.id && a.type < b.type;
+}
 
+/**
+ * Idea: pomocou buildTopology postupne inicializujeme topologiu, migracny
+ * model, atd ...
+ * GA, ked sa rozhodne o poslanie udajov, zavola requestMigration metodu - tu
+ * bude treba synchronizacia,
+ * poslu sa data (dostaneme celu populaciu z GA, a Migrator podla migracneho
+ * modelu zabezpeci vyber chromozomov,
+ * ktore treba poslat dalej; t.j. zo senders sa zisti kde vsade chceme poslat a
+ * posleme)
+ * A zaroven sa caka na prijatie novych (Migrator zabezpeci data z inych uzlov
+ * ; t.j. z receivers dostaneme GA, ktore by mali dodat ich populacie).
+ * Aby sme nemali deadlock s cakanim, treba nejak rozumne, napr kednie su data
+ * tak idem dalej a skusim next ...
+ */
 class Migrator
 {
-public:
-    Migrator();
+protected:
+    static std::map<int, std::set<Migration>> p_senderMigrations;
+    static std::map<int, std::set<Migration>> p_receiverMigrations;
 
-    void buildTopology(int senderID, Migrate send, int receiverID,
-        Migrate replace);
-    void requestMigration(int senderID, const Population &toSend,
-        Population &toReceive);
+public:
+    virtual Population migrate(int senderId, const Population &Population) = 0;
+
+    static void addMigration(int senderId, const std::set<Migration> &migration)
+    {
+        p_senderMigrations[senderId].insert(migration.begin(), migration.end());
+
+        for (const Migration &m : migration) {
+            p_receiverMigrations[m.id].emplace(m.type, senderId);
+        }
+    }
+};
+
+class MpiMigrator : public Migrator
+{
+public:
+    MpiMigrator(const boost::mpi::communicator &comm)
+        : comm{ comm }
+    {
+    }
+    Population migrate(int senderId, const Population &population) override;
 
 private:
-    std::map<int, std::vector<MigrationModel>> senders;
-    std::map<int, std::vector<MigrationModel>> receivers;
-    //
-    void receive(int sender, int receiver, Population toReceive);
-    void send(int sender, int receiver, Population toSend);
+    boost::mpi::communicator comm;
 };
 
 #endif

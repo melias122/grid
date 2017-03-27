@@ -20,96 +20,105 @@
 #include "SelectRandom.h"
 #include "SelectTournament.h"
 #include "SelectTournament.h"
+#include "app.h"
 
 #include <fstream>
-#include <functional>
-#include <future>
 #include <iostream>
-#include <stdlib.h> /* srand, rand */
-#include <thread> /*threading*/
-#include <time.h> /* time */
+#include <random>
+
+#include <thread>
+#include <time.h>
+
+#include <boost/mpi.hpp>
 
 using namespace std;
 
 #define println(msg) cout << msg << endl
 
-GA *GATest()
+unique_ptr<GA> newNode(Migrator *migrator = nullptr)
 {
-    SchemeGA *scheme = new SchemeGA(8000, 3000, 200);
+    SchemeGA *scheme = new SchemeGA(10000, 3000, 80);
+    scheme->addOperation(Operation(new SelectElitism(1), new GeneticOperation));
+    scheme->addOperation(Operation(new SelectElitism(1), new GeneticOperationMutationSwap(2)));
+    scheme->addOperation({ new SelectTournament(15), new GeneticOperation });
 
-    SelGenOp sg0; // pick the best one without any changes
-    sg0.sel = new SelectElitism(1);
-    sg0.op = new GeneticOperation(); // do nothing
-    scheme->addToSchema(sg0);
+    Cipher *cipher = Monoalphabetic::fromFile("/home/melias122/code/grid/project/PGA/input/177_1000.txt");
+    Fitness *fitness = L1DistanceBigrams::fromFile("/home/melias122/code/grid/project/PGA/input/fr_2.csv");
 
-    SelGenOp sg1; // pick the best one and swap
-    sg1.sel = new SelectElitism(1);
-    sg1.op = new GeneticOperationMutationSwap(2);
-    // new GeneticOperationMutation(0.01f);
-    // new GeneticOperationMutationSwapAll();
-    scheme->addToSchema(sg1);
-
-    SelGenOp sg2; // pick 18 with tournament select without any changes
-    sg2.sel = new SelectTournament(15);
-    sg2.op = new GeneticOperation(); // do nothing
-    scheme->addToSchema(sg2);
-
-    // EXMAPLE TO ADD ADITIONAL OPERATIONS IN CHAIN ...
-    //    SelGenOp sg1Next; // pick the best one and rnd change
-    //    sg1Next.sel = new SelectElitism(1);
-    //    sg1Next.op = new GeneticOperationMutation(0.05); //new
-    //    GeneticOperationMutationSwapAll();
-    //    sg1.next = &sg1Next;
-
-    println("GA");
-
-    return new GA(scheme,
-        Monoalphabetic::fromFile("/home/melias122/code/grid/project/PGA/input/177_1000.txt"),
-        L1DistanceBigrams::fromFile("/home/melias122/code/grid/project/PGA/input/fr_2.csv"));
+    return unique_ptr<GA>{ new GA(scheme, cipher, fitness, migrator) };
 }
 
-void PGATest(vector<GA *> &gaPool)
+void testGA()
 {
-    println("PGATest started");
-
-    Migrator *mig = new Migrator();
-    println("initialising migrator.");
-
-    for (size_t i = 0; i < gaPool.size(); i++) {
-        GA *ga = gaPool[i];
-        //        ga->setMigrator(mig);
-        if (i > 0) {
-            GA *gaPrev = gaPool[i - 1];
-            Migrate best = best;
-            Migrate worst = worst;
-
-            mig->buildTopology(gaPrev->getID(), best, ga->getID(), worst);
-        }
+    while (1) {
+        newNode()->start();
     }
-    cout << "starting gas.\n";
+}
 
-    vector<thread> tl;
-    for (size_t i = 0; i < gaPool.size(); i++) {
-        GA *ga = gaPool[i];
-        tl.emplace_back(&GA::start, ga);
+void testMpiPGA_2x2(int argc = 0, char **argv = 0)
+{
+    println("test/PGA: started");
+
+    boost::mpi::environment env;
+    boost::mpi::communicator comm;
+
+    srand(time(0) + comm.rank());
+
+    if (comm.size() != 4) {
+        println("test/PGA: failed, want only 4 nodes");
+        return;
     }
 
-    cout << "join.\n";
+    Migrator *migrator = new MpiMigrator(comm);
+    migrator->addMigration(0, { Migration(Migration::Type::Random, 1) });
+    migrator->addMigration(0, { Migration(Migration::Type::Random, 3) });
+    migrator->addMigration(1, { Migration(Migration::Type::Best, 0) });
+    migrator->addMigration(1, { Migration(Migration::Type::Best, 4) });
+    migrator->addMigration(2, { Migration(Migration::Type::Best, 3) });
 
-    for (size_t i = 0; i < tl.size(); i++) {
-        tl[i].join();
-    }
+    auto gaNode = newNode(migrator);
+    gaNode->setId(comm.rank());
+    gaNode->start();
+}
 
-    cout << "function end.\n";
+void testThreadPGA()
+{
+    //    migrator->addMigration();
+
+    //    for (size_t i = 0; i < gaPool.size(); i++) {
+    //        GA *ga = gaPool[i];
+    //        //        ga->setMigrator(mig);
+    //        if (i > 0) {
+    //            GA *gaPrev = gaPool[i - 1];
+    //            Migrate best = best;
+    //            Migrate worst = worst;
+
+    //            mig->buildTopology(gaPrev->getID(), best, ga->getID(), worst);
+    //        }
+    //    }
+    //    cout << "starting gas.\n";
+
+    //    vector<thread> tl;
+    //    for (size_t i = 0; i < gaPool.size(); i++) {
+    //        GA *ga = gaPool[i];
+    //        tl.emplace_back(&GA::start, ga);
+    //    }
+
+    //    cout << "join.\n";
+
+    //    for (size_t i = 0; i < tl.size(); i++) {
+    //        tl[i].join();
+    //    }
+
+    //    cout << "function end.\n";
 }
 
 int main(int argc, char **argv)
 {
-    srand(time(NULL));
+    //    srand(time(NULL));
 
-    while (1) {
-        GATest()->start();
-    }
+    //    testGA();
+    testMpiPGA_2x2();
 
     //            vector<GA*> gaPool;
     //            for (int i = 0; i < 2; i++) {

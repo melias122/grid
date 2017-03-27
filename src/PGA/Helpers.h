@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+using namespace std;
+
 const char abcChars[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
     'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
     's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
@@ -20,7 +22,15 @@ const char abcChars[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
 namespace Helpers
 {
 
-using namespace std;
+static std::string rndAbcPermutation()
+{
+    std::string perm(26, 0);
+    for (int i = 0; i < perm.size(); i++) {
+        perm[i] = abcChars[i];
+    }
+    std::random_shuffle(begin(perm), end(perm));
+    return perm;
+}
 
 static bool readFile(string &content, string path)
 {

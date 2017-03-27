@@ -16,58 +16,59 @@ GA::GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator)
     , m_migrator{ migrator }
 {
     static int id{ 0 };
-    m_id = ++id;
+    m_id = id++;
 }
 
 void GA::init()
 {
-    string txt;
-    m_population.resize(m_scheme->initialPopulation);
-    for (Chromosome &c : m_population) {
-        m_cipher->decrypt(c.genes(), txt);
-        double score = m_fitness->evaluate(txt);
+    string plaintext;
+    m_population.reserve(m_scheme->initialPopulation());
+    for (int i = 0; i < m_scheme->initialPopulation(); i++) {
+        Chromosome c(Helpers::rndAbcPermutation());
+        m_cipher->decrypt(c.genes(), plaintext);
+        double score = m_fitness->evaluate(plaintext);
         c.setScore(score);
+        m_population.push_back(c);
     }
 }
 
 void GA::start()
 {
     init();
-    for (int i = 1; i <= m_scheme->maxIteration; i++) {
-        Population newPopulation;
-        if (m_migrator && ((m_scheme->migrationTime & i) == 0)) {
-            m_migrator->requestMigration(m_id, m_population, newPopulation);
-            m_population.insert(end(m_population), begin(newPopulation),
-                end(newPopulation));
+    for (int i = 1; i <= m_scheme->maxIteration(); i++) {
+
+        if (m_migrator && ((m_scheme->migrationTime() % i) == 0)) {
+            Population migrated = m_migrator->migrate(m_id, m_population);
+            m_population.insert(end(m_population), begin(migrated), end(migrated));
         }
 
-        newPopulation.clear();
-        for (int j = 0; j < m_scheme->genOps.size(); j++) {
-            Population selected = applySelGenOp(m_scheme->genOps[j], m_population);
-            newPopulation.insert(end(newPopulation), begin(selected), end(selected));
-        }
-
-        m_population = newPopulation;
+        applyOperations();
     }
 
-    m_cipher->decrypt(m_population[0].genes(), m_plaintext);
-    cout << "out: " << m_plaintext << "\n";
+    string pt;
+    m_cipher->decrypt(m_population[0].genes(), pt);
+    cout << "GA node " << id() << " decrypted: " << pt << "\n";
 }
 
-Population GA::applySelGenOp(SelGenOp &sgo, const Population &subPop)
+void GA::applyOperations()
 {
-    Population selected = sgo.sel->select(subPop);
-    sgo.op->apply(selected);
+    string plaintext;
+    Population newpop;
+    newpop.reserve(m_population.size());
 
-    for (size_t j = 0; j < selected.size(); j++) {
-        m_cipher->decrypt(selected[j].genes(), m_plaintext);
-        double score = m_fitness->evaluate(m_plaintext);
-        selected[j].setScore(score);
+    for (const Operation &o : m_scheme->operations()) {
+
+        Population selected = o.select->select(m_population);
+        o.genetic->apply(selected);
+
+        for (size_t j = 0; j < selected.size(); j++) {
+            m_cipher->decrypt(selected[j].genes(), plaintext);
+            double score = m_fitness->evaluate(plaintext);
+            selected[j].setScore(score);
+        }
+
+        newpop.insert(newpop.begin(), selected.begin(), selected.end());
     }
 
-    if (sgo.next) {
-        selected = applySelGenOp((*sgo.next), selected);
-    }
-
-    return selected;
+    m_population = newpop;
 }

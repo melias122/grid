@@ -13,21 +13,21 @@ class GA
 public:
     GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator = nullptr);
     void start();
-    Population applySelGenOp(SelGenOp &op, const Population &subPop);
 
-    int getID() { return m_id; }
+    void setId(int id) { m_id = id; }
+    int id() { return m_id; }
 
 private:
     void init();
+    void applyOperations();
 
     int m_id{ 0 };
     Population m_population;
-    string m_plaintext;
 
     unique_ptr<SchemeGA> m_scheme;
     unique_ptr<Cipher> m_cipher;
     unique_ptr<Fitness> m_fitness;
-    unique_ptr<Migrator> m_migrator;
+    shared_ptr<Migrator> m_migrator;
 };
 
 #endif // GA_H
