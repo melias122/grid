@@ -3,28 +3,46 @@
 
 #include "GeneticOperation.h"
 #include "Select.h"
+
+#include <memory>
 #include <vector>
 
-struct SelGenOp {
-    Select *sel;
-    GeneticOperation *op;
-    SelGenOp *next{ 0 };
+using namespace std;
+
+struct Operation {
+    Operation(Select *s, GeneticOperation *o)
+        : select{ s }
+        , genetic{ o }
+    {
+    }
+
+    shared_ptr<Select> select;
+    shared_ptr<GeneticOperation> genetic;
 };
 
 class SchemeGA
 {
 public:
-    unsigned int migrationTime;
-    unsigned int maxIteration;
-    unsigned int initialPopulation;
+    SchemeGA(uint maxIteration, uint migrationTime, uint initialPopulation)
+        : m_maxIteration{ maxIteration }
+        , m_migrationTime{ migrationTime }
+        , m_initialPopulation{ initialPopulation }
+    {
+    }
 
-    std::vector<SelGenOp> genOps;
+    void addOperation(const Operation &o) { m_operations.push_back(o); }
+    const vector<Operation> &operations() const { return m_operations; }
 
-    void addToSchema(SelGenOp part);
+    uint migrationTime() const { return m_migrationTime; }
+    uint maxIteration() const { return m_maxIteration; }
+    uint initialPopulation() const { return m_initialPopulation; }
 
-    SchemeGA(unsigned int mi, unsigned int mt, unsigned int ip);
+private:
+    vector<Operation> m_operations;
 
-    SchemeGA(const SchemeGA &other);
+    uint m_migrationTime;
+    uint m_maxIteration;
+    uint m_initialPopulation;
 };
 
 #endif
