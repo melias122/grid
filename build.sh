@@ -19,8 +19,10 @@ build_boost() {
 }
 
 clang_format_all() {
-	find src/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
-	find project/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
+	if hash clang-format 2>/dev/null; then
+		find src/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
+		find project/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
+	fi
 }
 
 load_modules() {

@@ -2,7 +2,7 @@
 set -e
 
 mkdir -p vendor/
-wget -c https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2 -O vendor/boost_1_63_0.tar.bz2
+wget --no-check-certificate https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2 -O vendor/boost_1_63_0.tar.bz2
 echo "extracting boost"
 tar -xjf vendor/boost_1_63_0.tar.bz2 -C vendor/
 pushd vendor/boost_1_63_0

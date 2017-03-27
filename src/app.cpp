@@ -3,6 +3,7 @@
 #include "mpi.h"
 
 #include <cassert>
+#include <iostream>
 #include <typeinfo>
 
 Application::Application(int argc, char **argv)
