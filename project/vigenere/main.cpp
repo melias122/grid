@@ -61,30 +61,30 @@ public:
     {
     }
 
-    void run(int procId, int nproc) override
+    void run(const mpi::communicator &comm) override
     {
-        if (procId > 26) {
+        if (comm.rank() > 26) {
             return;
         }
 
-        if (procId == 0) {
+        if (comm.rank() == 0) {
             string key = randomString(keySize);
             cout << "Generated key: " << key << endl;
             m_pt = randomString(plaintextSize);
             m_ct = m_cipher.encrypt(m_pt, key);
 
-            for (int i = 1; i < nproc; i++) {
-                sendString(i, 0, m_pt);
-                sendString(i, 1, m_ct);
+            for (int i = 1; i < comm.size(); i++) {
+                comm.send(i, 0, m_pt);
+                comm.send(i, 1, m_ct);
             }
         } else {
-            m_pt = recvString(0, 0);
-            m_ct = recvString(0, 1);
+            comm.recv(0, 0, m_pt);
+            comm.recv(0, 1, m_ct);
         }
 
-        cout << "VigenereBreaker proc: " << procId << endl;
+        cout << "VigenereBreaker proc: " << comm.rank() << endl;
         string key(m_maxKeylen, 0);
-        key[0] = procId + 'A';
+        key[0] = comm.rank() + 'A';
         recursive(1, m_maxKeylen, key);
     }
 

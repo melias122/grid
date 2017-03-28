@@ -1,21 +1,34 @@
 #ifndef APP_H
 #define APP_H
 
-#include <string>
+#include <boost/mpi.hpp>
+#include <cstdlib>
+#include <ctime>
 
-class Application
+namespace mpi = boost::mpi;
+
+class MpiApp : public mpi::environment
 {
 public:
-    Application() {}
-    Application(int argc, char **argv);
-    ~Application();
+    MpiApp()
+    {
+        srand(time(0) + rank());
+    }
 
-    int rank();
-    int size();
+    MpiApp(int &argc, char **&argv)
+        : mpi::environment(argc, argv)
+    {
+    }
+
+    int rank() { comm.rank(); }
+    int size() { comm.size(); }
+    const mpi::communicator &communicator() const { return comm; }
 
 private:
-    int m_rank, m_size;
+    mpi::communicator comm;
 };
+
+using Application = MpiApp;
 
 class Bruteforcer
 {
@@ -24,7 +37,7 @@ public:
 
     // notice that procId count from 0
     // procId is always < nproc
-    virtual void run(int procId, int nproc) = 0;
+    virtual void run(const mpi::communicator &c) = 0;
 };
 
 struct Runner {
@@ -32,23 +45,9 @@ struct Runner {
 
     static void run(Bruteforcer *b)
     {
-        Application app;
-        b->run(app.rank(), app.size());
+        MpiApp app;
+        b->run(app.communicator());
     }
 };
-
-void sendString(int dest, int tag, const std::string &s);
-std::string recvString(int source, int tag);
-
-// experimental communicator
-template <typename T>
-struct comm {
-public:
-    void send(int dest, int tag, const T &data, int size = 1);
-    T recv(int source, int tag, int size = 1) const;
-};
-
-template struct comm<char>;
-template struct comm<int>;
 
 #endif // APP_H
