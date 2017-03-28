@@ -1,6 +1,3 @@
 add_subdirectory(helloworld)
-add_subdirectory(ring)
-add_subdirectory(sum)
-add_subdirectory(bruteforce)
 add_subdirectory(vigenere)
-add_subdirectory(PGA)
+add_subdirectory(pga)
