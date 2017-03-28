@@ -6,9 +6,11 @@
 #include <boost/mpi.hpp>
 #include <map>
 #include <set>
+#include <tuple>
 
 struct Migration {
     enum class Type {
+        None,
         Random,
         Best,
         Worst
@@ -21,7 +23,7 @@ struct Migration {
     }
 
     int id;
-    Type type;
+    Type type{ Type::None };
 };
 
 inline bool operator<(const Migration &a, const Migration &b)
@@ -46,29 +48,30 @@ inline bool operator<(const Migration &a, const Migration &b)
 class Migrator
 {
 protected:
-    static std::map<int, std::set<Migration>> p_senderMigrations;
-    static std::map<int, std::set<Migration>> p_receiverMigrations;
+    static std::map<int, std::set<std::tuple<int, Migration::Type>>> p_senderMigrations;
+    static std::map<int, std::set<int>> p_receiverMigrations;
 
 public:
     virtual Population migrate(int senderId, const Population &Population) = 0;
 
-    static void addMigration(int senderId, const std::set<Migration> &migration)
+    // migracia typu sender <-> receiver
+    static void addMigration(int senderId, int receiverId, Migration::Type type)
     {
-        p_senderMigrations[senderId].insert(migration.begin(), migration.end());
-
-        for (const Migration &m : migration) {
-            p_receiverMigrations[m.id].emplace(m.type, senderId);
+        if (type == Migration::Type::None) {
+            return;
         }
+
+        p_senderMigrations[senderId].insert(std::make_tuple(receiverId, type));
+        p_senderMigrations[receiverId].insert(std::make_tuple(senderId, type));
+
+        p_receiverMigrations[receiverId].insert(senderId);
+        p_receiverMigrations[senderId].insert(receiverId);
     }
 };
 
 class MpiMigrator : public Migrator
 {
 public:
-    MpiMigrator(const boost::mpi::communicator &comm)
-        : comm{ comm }
-    {
-    }
     Population migrate(int senderId, const Population &population) override;
 
 private:

@@ -3,28 +3,28 @@
 #include <iostream>
 
 using namespace std;
-using namespace boost;
+using namespace boost::mpi;
 
-map<int, set<Migration>> Migrator::p_senderMigrations = {};
-map<int, set<Migration>> Migrator::p_receiverMigrations = {};
+map<int, set<tuple<int, Migration::Type>>> Migrator::p_senderMigrations = {};
+map<int, set<int>> Migrator::p_receiverMigrations = {};
 
 Population MpiMigrator::migrate(int senderId, const Population &population)
 {
     Population newpop;
-    vector<mpi::request> requests;
+    vector<request> requests;
 
-    for (const Migration &m : p_senderMigrations[senderId]) {
-        mpi::request req = comm.isend<Chromosome>(m.id, 0, population[rand() % population.size()]);
+    for (const tuple<int, Migration::Type> &s : p_senderMigrations[senderId]) {
+        request req = comm.isend<Chromosome>(get<0>(s), 0, population[rand() % population.size()]);
         requests.push_back(req);
     }
 
-    for (const Migration &m : p_receiverMigrations[senderId]) {
+    for (const int &id : p_receiverMigrations[senderId]) {
         Chromosome ch;
-        comm.recv<Chromosome>(m.id, 0, ch);
+        comm.recv<Chromosome>(id, 0, ch);
         newpop.push_back(ch);
     }
 
-    mpi::wait_all(requests.begin(), requests.end());
+    wait_all(requests.begin(), requests.end());
 
     return newpop;
 }
