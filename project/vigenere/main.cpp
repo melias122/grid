@@ -3,8 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include "app.h"
-#include "mpi.h"
+#include "MpiApp.h"
 
 using namespace std;
 

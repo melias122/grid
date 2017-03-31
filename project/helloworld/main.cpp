@@ -1,6 +1,6 @@
-#include "app.h"
-
 #include <iostream>
+
+#include "MpiApp.h"
 
 using namespace std;
 

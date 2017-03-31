@@ -1,5 +1,5 @@
-#ifndef APP_H
-#define APP_H
+#ifndef MPI_APP_H
+#define MPI_APP_H
 
 #include <boost/mpi.hpp>
 #include <cstdlib>
@@ -51,4 +51,4 @@ struct Runner {
     }
 };
 
-#endif // APP_H
+#endif // MPI_APP_H
