@@ -32,8 +32,7 @@ private:
 class L1DistanceTrigrams : public Fitness
 {
 public:
-    L1DistanceTrigrams(
-        const std::vector<std::vector<std::vector<double>>> &referenceTrigrams);
+    L1DistanceTrigrams(const std::vector<std::vector<std::vector<double>>> &referenceTrigrams);
     L1DistanceTrigrams *fromFile(std::string path);
 
     double evaluate(const std::string &in);

@@ -1,4 +1,5 @@
 #include "FitnessL1.h"
+
 #include "Chromosome.h"
 #include "Helpers.h"
 #include "math.h"
@@ -10,13 +11,10 @@ using namespace std;
 
 static vector<tuple<string, double>> parseCsv(string path)
 {
-    string s, first, second, line;
-    if (!Helpers::readFile(s, path)) {
-        return {};
-    }
-
-    stringstream ss(s);
+    string first, second, line;
+    stringstream ss(Helpers::readFile(path));
     vector<tuple<string, double>> values;
+
     while (getline(ss, line, '\n')) {
         stringstream ls(line);
         getline(ls, first, ',');
@@ -34,10 +32,9 @@ L1DistanceMonograms::L1DistanceMonograms(
 
 L1DistanceMonograms *L1DistanceMonograms::fromFile(string path)
 {
-    auto values = parseCsv(path);
-
     vector<double> monograms(26, 0);
-    for (const tuple<string, double> &t : values) {
+
+    for (const tuple<string, double> &t : parseCsv(path)) {
         string s = get<0>(t);
         monograms[s[0] - 'a'] = get<1>(t);
     }
@@ -70,14 +67,12 @@ L1DistanceBigrams::L1DistanceBigrams(
 
 L1DistanceBigrams *L1DistanceBigrams::fromFile(string path)
 {
-    auto values = parseCsv(path);
-
     vector<vector<double>> bigrams(26);
     for (vector<double> &v : bigrams) {
         v.resize(26, .0);
     }
 
-    for (const tuple<string, double> &t : values) {
+    for (const tuple<string, double> &t : parseCsv(path)) {
         string s = get<0>(t);
         bigrams[s[0] - 'a'][s[1] - 'a'] = get<1>(t);
     }
@@ -103,10 +98,13 @@ double L1DistanceBigrams::evaluate(const string &in)
     return -sum;
 }
 
-L1DistanceTrigrams::L1DistanceTrigrams(
-    const vector<vector<vector<double>>> &referenceTrigrams) {}
+//L1DistanceTrigrams::L1DistanceTrigrams(const vector<vector<vector<double>>> &referenceTrigrams)
+//{
+//}
 
-L1DistanceTrigrams *L1DistanceTrigrams::fromFile(std::string path) {}
+//L1DistanceTrigrams *L1DistanceTrigrams::fromFile(std::string path)
+//{
+//}
 
 double L1DistanceTrigrams::evaluate(const std::string &in)
 {

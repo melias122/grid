@@ -4,11 +4,7 @@
 
 Monoalphabetic *Monoalphabetic::fromFile(string path)
 {
-    string ciphertext;
-    if (!Helpers::readFile(ciphertext, path)) {
-        return nullptr;
-    }
-    return new Monoalphabetic(ciphertext);
+    return new Monoalphabetic(Helpers::readFile(path));
 }
 
 void Monoalphabetic::decrypt(const string &key, string &plaintext)

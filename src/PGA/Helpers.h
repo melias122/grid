@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include <stdexcept>
 
 #include <stdlib.h>
 #include <time.h>
@@ -32,16 +33,16 @@ static std::string rndAbcPermutation()
     return perm;
 }
 
-static bool readFile(string &content, string path)
+static string readFile(string path)
 {
+    string content;
     ifstream ifs(path);
     if (!ifs.is_open()) {
-        perror(path.c_str());
-        return false;
+        throw std::invalid_argument("could not open file: " + path);
     }
     content.assign(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>());
     ifs.close();
-    return true;
+    return content;
 }
 
 // https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
