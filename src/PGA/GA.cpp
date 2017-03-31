@@ -17,6 +17,10 @@ GA::GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator)
 {
     static int id{ 0 };
     m_id = id++;
+
+    if (m_migrator) {
+        m_migrator->setMigrationTime(m_scheme->migrationTime());
+    }
 }
 
 void GA::init()
@@ -37,11 +41,7 @@ void GA::start()
     init();
     for (int i = 1; i <= m_scheme->maxIteration(); i++) {
 
-        if (m_migrator && ((m_scheme->migrationTime() % i) == 0)) {
-            Population migrated = m_migrator->migrate(m_id, m_population);
-            m_population.insert(end(m_population), begin(migrated), end(migrated));
-        }
-
+        m_migrator->migrate(m_id, i, m_population);
         applyOperations();
     }
 

@@ -8,6 +8,8 @@
 #include <set>
 #include <tuple>
 
+namespace mpi = boost::mpi;
+
 struct Migration {
     enum class Type {
         None,
@@ -51,8 +53,10 @@ protected:
     static std::map<int, std::set<std::tuple<int, Migration::Type>>> p_senderMigrations;
     static std::map<int, std::set<int>> p_receiverMigrations;
 
+    int p_migrationTime{ 0 };
+
 public:
-    virtual Population migrate(int senderId, const Population &Population) = 0;
+    virtual void migrate(int senderId, int itteration, Population &Population) = 0;
 
     // migracia typu sender <-> receiver
     static void addMigration(int senderId, int receiverId, Migration::Type type)
@@ -67,15 +71,20 @@ public:
         p_receiverMigrations[receiverId].insert(senderId);
         p_receiverMigrations[senderId].insert(receiverId);
     }
+
+    // nastavi kedy sa ma vykonat migracia, kazdu n-tu iteraciu (nthItteration)
+    void setMigrationTime(int nthItteration) { p_migrationTime = nthItteration; }
 };
 
 class MpiMigrator : public Migrator
 {
 public:
-    Population migrate(int senderId, const Population &population) override;
+    void migrate(int senderId, int itteration, Population &population) override;
 
 private:
-    boost::mpi::communicator comm;
+    mpi::communicator comm;
+
+    std::vector<mpi::request> m_sendRequest;
 };
 
 #endif

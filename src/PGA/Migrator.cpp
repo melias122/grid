@@ -3,28 +3,28 @@
 #include <iostream>
 
 using namespace std;
-using namespace boost::mpi;
 
 map<int, set<tuple<int, Migration::Type>>> Migrator::p_senderMigrations = {};
 map<int, set<int>> Migrator::p_receiverMigrations = {};
 
-Population MpiMigrator::migrate(int senderId, const Population &population)
+void MpiMigrator::migrate(int senderId, int itteration, Population &population)
 {
-    Population newpop;
-    vector<request> requests;
+    if ((p_migrationTime % itteration) == 0) {
 
-    for (const tuple<int, Migration::Type> &s : p_senderMigrations[senderId]) {
-        request req = comm.isend<Chromosome>(get<0>(s), 0, population[rand() % population.size()]);
-        requests.push_back(req);
+        m_sendRequest.clear();
+
+        // vykona sa migracia
+        for (const tuple<int, Migration::Type> &s : p_senderMigrations[senderId]) {
+            mpi::request req = comm.isend<Chromosome>(get<0>(s), 0, population[rand() % population.size()]);
+            m_sendRequest.push_back(req);
+        }
+
+        for (const int &id : p_receiverMigrations[senderId]) {
+            Chromosome ch;
+            comm.recv<Chromosome>(id, 0, ch);
+            population.push_back(ch);
+        }
+
+        mpi::wait_all(m_sendRequest.begin(), m_sendRequest.end());
     }
-
-    for (const int &id : p_receiverMigrations[senderId]) {
-        Chromosome ch;
-        comm.recv<Chromosome>(id, 0, ch);
-        newpop.push_back(ch);
-    }
-
-    wait_all(requests.begin(), requests.end());
-
-    return newpop;
 }
