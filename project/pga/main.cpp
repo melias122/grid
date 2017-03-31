@@ -61,8 +61,8 @@ int main(int argc, char **argv)
 
     // vytvorenie schemy genetickeho algroritmu
     SchemeGA *scheme = new SchemeGA(10000, 3000, 80);
-    scheme->addOperation(Operation(new SelectElitism(1), new GeneticOperation));
-    scheme->addOperation(Operation(new SelectElitism(1), new GeneticOperationMutationSwap(2)));
+    scheme->addOperation({ new SelectElitism(1), new GeneticOperation });
+    scheme->addOperation({ new SelectElitism(1), new GeneticOperationMutationSwap(2) });
     scheme->addOperation({ new SelectTournament(15), new GeneticOperation });
 
     // vyber lustenej sifry
