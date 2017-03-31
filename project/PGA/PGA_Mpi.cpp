@@ -1,35 +1,7 @@
-/*
- * File:   main.cpp
- * Author: Jugin
- *
- * Created on March 2, 2017, 2:17 PM
- */
-
-#include "Chromosome.h"
-#include "Cipher.h"
-#include "Fitness.h"
-#include "FitnessL1.h"
-#include "GA.h"
-#include "GeneticOperation.h"
-#include "GeneticOperationMutation.h"
-#include "GeneticOperationMutationSwap.h"
-#include "GeneticOperationMutationSwapAll.h"
-#include "Helpers.h"
-#include "SchemeGA.h"
-#include "SelectElitism.h"
-#include "SelectRandom.h"
-#include "SelectTournament.h"
-#include "SelectTournament.h"
-#include "app.h"
-
-#include <fstream>
 #include <iostream>
-#include <random>
 
-#include <thread>
-#include <time.h>
-
-#include <boost/mpi.hpp>
+#include "MpiApp.h"
+#include "PGA.h"
 
 using namespace std;
 
@@ -53,11 +25,11 @@ int main(int argc, char **argv)
 
     // vytvorenie migracnej schemy
     Migrator *migrator = new MpiMigrator;
-    migrator->addMigration(0, 1, Migration::Type::Random);
-    migrator->addMigration(0, 3, Migration::Type::Random);
-    migrator->addMigration(1, 0, Migration::Type::Best);
-    migrator->addMigration(1, 3, Migration::Type::Best);
-    migrator->addMigration(2, 3, Migration::Type::Best);
+    migrator->addMigration(0, 1, MigrationType::Random);
+    migrator->addMigration(0, 3, MigrationType::Random);
+    migrator->addMigration(1, 0, MigrationType::Best);
+    migrator->addMigration(1, 3, MigrationType::Best);
+    migrator->addMigration(2, 3, MigrationType::Best);
 
     // vytvorenie schemy genetickeho algroritmu
     SchemeGA *scheme = new SchemeGA(10000, 3000, 80);
@@ -76,6 +48,10 @@ int main(int argc, char **argv)
 
     println("PGA: started");
     node.start();
+
+    string pt;
+    cipher->decrypt(node.population()[0].genes(), pt);
+    println("GA node " << node.id() << " decrypted: " << pt);
 
     return 0;
 }

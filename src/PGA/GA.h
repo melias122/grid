@@ -16,6 +16,7 @@ public:
 
     void setId(int id) { m_id = id; }
     int id() { return m_id; }
+    Population &population() { return m_population; }
 
 private:
     void init();

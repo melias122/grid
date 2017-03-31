@@ -39,8 +39,6 @@ private:
         ar &m_score;
     }
 
-    std::string rndAbcPermutation();
-
     std::string m_genes;
     double m_score{ 0.0 };
 };

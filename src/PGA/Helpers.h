@@ -7,29 +7,26 @@
 
 #include <fstream>
 #include <iostream>
-#include <iterator>
-#include <sstream>
 #include <stdexcept>
-
-#include <stdlib.h>
-#include <time.h>
 
 using namespace std;
 
-const char abcChars[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+const char abcChars[] = {
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
     'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-    's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+    's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+};
 
 namespace Helpers
 {
 
-static std::string rndAbcPermutation()
+static string rndAbcPermutation()
 {
-    std::string perm(26, 0);
+    string perm(26, 0);
     for (int i = 0; i < perm.size(); i++) {
         perm[i] = abcChars[i];
     }
-    std::random_shuffle(begin(perm), end(perm));
+    random_shuffle(begin(perm), end(perm));
     return perm;
 }
 
@@ -38,7 +35,7 @@ static string readFile(string path)
     string content;
     ifstream ifs(path);
     if (!ifs.is_open()) {
-        throw std::invalid_argument("could not open file: " + path);
+        throw invalid_argument("could not open file: " + path);
     }
     content.assign(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>());
     ifs.close();

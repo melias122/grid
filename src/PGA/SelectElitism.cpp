@@ -1,5 +1,6 @@
 #include "SelectElitism.h"
-#include "Helpers.h"
+
+#include <algorithm>
 
 Population SelectElitism::select(Population p)
 {

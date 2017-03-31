@@ -1,7 +1,7 @@
 #ifndef CIPHER_H
 #define CIPHER_H
 
-#include "Chromosome.h"
+#include <string>
 
 using namespace std;
 

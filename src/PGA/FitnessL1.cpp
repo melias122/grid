@@ -1,10 +1,9 @@
 #include "FitnessL1.h"
 
-#include "Chromosome.h"
 #include "Helpers.h"
-#include "math.h"
 
-#include <string>
+#include <cmath>
+#include <sstream>
 #include <tuple>
 
 using namespace std;

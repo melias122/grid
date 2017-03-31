@@ -1,9 +1,6 @@
 #include "GA.h"
-#include "GeneticOperationMutationSwap.h"
+
 #include "Helpers.h"
-#include "Migrator.h"
-#include "SelectElitism.h"
-#include "SelectTournament.h"
 
 #include <iostream>
 
@@ -25,14 +22,14 @@ GA::GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator)
 
 void GA::init()
 {
-    string plaintext;
+    double score;
+    string plaintext, genes;
     m_population.reserve(m_scheme->initialPopulation());
     for (int i = 0; i < m_scheme->initialPopulation(); i++) {
-        Chromosome c(Helpers::rndAbcPermutation());
-        m_cipher->decrypt(c.genes(), plaintext);
-        double score = m_fitness->evaluate(plaintext);
-        c.setScore(score);
-        m_population.push_back(c);
+        genes = Helpers::rndAbcPermutation();
+        m_cipher->decrypt(genes, plaintext);
+        score = m_fitness->evaluate(plaintext);
+        m_population.emplace_back(genes, score);
     }
 }
 
@@ -41,14 +38,11 @@ void GA::start()
     init();
     for (int i = 1; i <= m_scheme->maxIteration(); i++) {
 
-        if (m_migrator)
+        if (m_migrator) {
             m_migrator->migrate(m_id, i, m_population);
+        }
         applyOperations();
     }
-
-    string pt;
-    m_cipher->decrypt(m_population[0].genes(), pt);
-    cout << "GA node " << id() << " decrypted: " << pt << "\n";
 }
 
 void GA::applyOperations()

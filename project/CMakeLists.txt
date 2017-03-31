@@ -1,3 +1,3 @@
 add_subdirectory(helloworld)
 add_subdirectory(vigenere)
-add_subdirectory(pga)
+add_subdirectory(PGA)
