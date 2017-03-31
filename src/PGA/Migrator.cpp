@@ -13,18 +13,20 @@ void MpiMigrator::migrate(int senderId, int itteration, Population &population)
 
         m_sendRequest.clear();
 
-        // vykona sa migracia
+        // posle sa populacia
         for (const tuple<int, Migration::Type> &s : p_senderMigrations[senderId]) {
             mpi::request req = comm.isend<Chromosome>(get<0>(s), 0, population[rand() % population.size()]);
             m_sendRequest.push_back(req);
         }
 
+        // prijme sa migrovana populacia
         for (const int &id : p_receiverMigrations[senderId]) {
-            Chromosome ch;
-            comm.recv<Chromosome>(id, 0, ch);
-            population.push_back(ch);
+            population.push_back(Chromosome());
+            mpi::request req = comm.irecv<Chromosome>(id, 0, population.back());
+            m_sendRequest.push_back(req);
         }
 
+        // cakanie na dokoncenie migracii
         mpi::wait_all(m_sendRequest.begin(), m_sendRequest.end());
     }
 }
