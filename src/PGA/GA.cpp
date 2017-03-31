@@ -41,7 +41,8 @@ void GA::start()
     init();
     for (int i = 1; i <= m_scheme->maxIteration(); i++) {
 
-        m_migrator->migrate(m_id, i, m_population);
+        if (m_migrator)
+            m_migrator->migrate(m_id, i, m_population);
         applyOperations();
     }
 
