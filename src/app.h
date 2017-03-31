@@ -18,6 +18,7 @@ public:
     MpiApp(int &argc, char **&argv)
         : mpi::environment(argc, argv)
     {
+        srand(time(0) + rank());
     }
 
     int rank() { comm.rank(); }
