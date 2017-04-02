@@ -15,6 +15,7 @@ list(APPEND PGA_SOURCES
 	GeneticOperationMutation.cpp
 	Chromosome.cpp
 	SelectTournament.cpp
+	SelectWorst.cpp
 )
 
 add_library(PGA ${PGA_SOURCES})
