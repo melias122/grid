@@ -40,8 +40,8 @@ public:
 private:
     vector<Operation> m_operations;
 
-    uint m_migrationTime;
     uint m_maxIteration;
+    uint m_migrationTime;
     uint m_initialPopulation;
 };
 

@@ -54,10 +54,10 @@ public:
         //		m_pt.resize(ct.size());
     }
 
-    VigenereBreaker(int plaintextSize, int keySize)
+    VigenereBreaker(int plaintextSize, int maxKeyLength)
         : plaintextSize{ plaintextSize }
         , keySize{ keySize }
-        , m_maxKeylen{ keySize }
+        , m_maxKeylen{ maxKeyLength }
     {
     }
 
@@ -110,14 +110,14 @@ private:
 
 private:
     Vigenere m_cipher;
-    int m_maxKeylen;
     string m_ct, m_pt;
+    int m_maxKeylen;
 
-    int plaintextSize, keySize;
+    int keySize, plaintextSize;
     bool done{ false };
 };
 
-int test()
+void test()
 {
     string key = randomString(4);
     string pt = randomString(100);

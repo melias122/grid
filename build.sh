@@ -3,7 +3,7 @@ set -e
 
 CC=mpicc
 CXX=mpicxx
-BUILD_DIR=release
+BUILD_DIR=_build
 
 usage() {
 	echo "Usage: $0 [-a] [-r project]" 1>&2
@@ -28,7 +28,7 @@ clang_format_all() {
 load_modules() {
 	if hash module 2>/dev/null; then
 		module load cmake/3.1.0
-		module load gcc/6.3
+		module load gcc/5.4
 		module load mvapich2/2.2
 	fi
 }
@@ -39,7 +39,9 @@ build_all() {
 	clang_format_all
 	mkdir -p $BUILD_DIR
 	cd $BUILD_DIR
-	cmake ..
+
+#	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+	cmake -DCMAKE_BUILD_TYPE=Debug ..
 	make -j $(nproc)
 }
 

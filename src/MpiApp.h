@@ -20,8 +20,8 @@ public:
     {
     }
 
-    int rank() { comm.rank(); }
-    int size() { comm.size(); }
+    int rank() { return comm.rank(); }
+    int size() { return comm.size(); }
     const mpi::communicator &communicator() const { return comm; }
 
 private:
