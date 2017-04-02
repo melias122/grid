@@ -1,6 +1,7 @@
 #ifndef GRID_RANDOM_H
 #define GRID_RANDOM_H
 
+#include <algorithm>
 #include <limits>
 #include <random>
 
@@ -31,6 +32,12 @@ public:
     {
         std::uniform_real_distribution<double> dist(min, max);
         return dist(_mt);
+    }
+
+    template <class Iterator>
+    void Shuffle(Iterator first, Iterator last)
+    {
+        std::shuffle(first, last, _mt);
     }
 
 private:
