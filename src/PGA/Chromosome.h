@@ -3,6 +3,7 @@
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
 #include <string>
 #include <vector>
 
@@ -44,5 +45,7 @@ private:
 };
 
 using Population = std::vector<Chromosome>;
+
+std::ostream &operator<<(std::ostream &os, const Population &p);
 
 #endif // CHROMOSOME_H
