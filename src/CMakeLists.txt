@@ -1,5 +1,8 @@
 list(APPEND GRID_SOURCES
     MpiApp.cpp
+
+    Random.h
+    Debug.h
 )
 
 add_library(grid ${GRID_SOURCES})

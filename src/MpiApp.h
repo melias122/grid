@@ -3,17 +3,22 @@
 
 #include <boost/mpi.hpp>
 
+#include "Debug.h"
+#include "Random.h"
+
 namespace mpi = boost::mpi;
 
 class MpiApp : public mpi::environment
 {
 public:
     MpiApp()
-    {}
+    {
+    }
 
     MpiApp(int &argc, char **&argv)
         : mpi::environment(argc, argv)
-    {}
+    {
+    }
 
     int rank() { comm.rank(); }
     int size() { comm.size(); }
