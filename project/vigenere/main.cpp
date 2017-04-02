@@ -4,6 +4,7 @@
 #include <string>
 
 #include "MpiApp.h"
+#include "Random.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ string randomString(const int len)
 {
     string s(len, 0);
     for (int i = 0; i < len; ++i) {
-        s[i] = alphanum[rand() % alphanum.length()];
+        s[i] = alphanum[Random.Uint64(0, alphanum.size() - 1)];
     }
     return s;
 }
@@ -131,8 +132,7 @@ int test()
 
 int main(int argc, char *argv[])
 {
-
-    srand(time(NULL));
+    //    Random.seed();
 
     int keySize, ptSize;
     try {

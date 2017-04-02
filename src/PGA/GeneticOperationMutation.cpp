@@ -1,6 +1,7 @@
 #include "GeneticOperationMutation.h"
 
 #include "Helpers.h"
+#include "Random.h"
 
 GeneticOperationMutation::GeneticOperationMutation()
 {
@@ -19,9 +20,9 @@ void GeneticOperationMutation::apply(Population &pop)
     for (int i = 0; i < pop.size(); i++) {
         Chromosome &c = pop[i];
         for (int g = 0; g < c.size(); g++) {
-            double r = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+            double r = Random.Double();
             if (r < mutationProbability) {
-                c.genes()[g] = abcChars[rand() % sizeof(abcChars)];
+                c.genes()[g] = abcChars[Random.Uint64(0, sizeof(abcChars) - 1)];
             }
         }
     }
