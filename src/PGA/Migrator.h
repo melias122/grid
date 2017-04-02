@@ -6,14 +6,37 @@
 #include <boost/mpi/communicator.hpp>
 #include <map>
 #include <set>
-#include <tuple>
 
 namespace mpi = boost::mpi;
 
-enum class MigrationType {
-    Random,
-    Best,
-    Worst
+class Migration
+{
+public:
+    enum class Type {
+        Random,
+        Best,
+        Worst,
+        Tournament
+    };
+
+    Migration(int receiverId, Type type, int choose)
+        : m_receiverId{ receiverId }
+        , m_type{ type }
+        , m_choose{ choose }
+    {
+    }
+
+    int receiverId() const { return m_receiverId; }
+    Population select(Population &p) const;
+
+private:
+    int m_receiverId;
+    Type m_type;
+    int m_choose;
+
+    friend class Migrator;
+    friend bool operator<(const Migration &l, const Migration &r);
+    friend std::ostream &operator<<(std::ostream &os, const Migration &m);
 };
 
 class Migrator
@@ -21,23 +44,25 @@ class Migrator
 public:
     ~Migrator() {}
 
-    virtual void migrate(int senderId, int itteration, Population &Population) = 0;
+    virtual void migrate(int senderId, int itteration, Population &population) = 0;
 
     // migracia typu sender <-> receiver
-    static void addMigration(int senderId, int receiverId, MigrationType type)
+    static void addMigration(int senderId, int receiverId, Migration::Type type, int chooseMax)
     {
-        p_senderMigrations[senderId].insert(std::make_tuple(receiverId, type));
-        p_senderMigrations[receiverId].insert(std::make_tuple(senderId, type));
+        p_senderMigrations[senderId].emplace(receiverId, type, chooseMax);
+        //        p_senderMigrations[receiverId].emplace(senderId, type, chooseMax);
 
         p_receiverMigrations[receiverId].insert(senderId);
-        p_receiverMigrations[senderId].insert(receiverId);
+        //        p_receiverMigrations[senderId].insert(receiverId);
     }
+
+    void printMigrations();
 
     // nastavi kedy sa ma vykonat migracia, kazdu n-tu iteraciu (nthItteration)
     void setMigrationTime(int nthItteration) { p_migrationTime = nthItteration; }
 
 protected:
-    static std::map<int, std::set<std::tuple<int, MigrationType>>> p_senderMigrations;
+    static std::map<int, std::set<Migration>> p_senderMigrations;
     static std::map<int, std::set<int>> p_receiverMigrations;
 
     int p_migrationTime{ 0 };

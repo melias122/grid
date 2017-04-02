@@ -25,11 +25,13 @@ int main(int argc, char **argv)
 
     // vytvorenie migracnej schemy
     Migrator *migrator = new MpiMigrator;
-    migrator->addMigration(0, 1, MigrationType::Random);
-    migrator->addMigration(0, 3, MigrationType::Random);
-    migrator->addMigration(1, 0, MigrationType::Best);
-    migrator->addMigration(1, 3, MigrationType::Best);
-    migrator->addMigration(2, 3, MigrationType::Best);
+    migrator->addMigration(1, 0, Migration::Type::Best, 5);
+    migrator->addMigration(2, 0, Migration::Type::Random, 15);
+    migrator->addMigration(3, 0, Migration::Type::Tournament, 7);
+
+    if (app.rank() == 0) {
+        migrator->printMigrations();
+    }
 
     // vytvorenie schemy genetickeho algroritmu
     SchemeGA *scheme = new SchemeGA(10000, 3000, 80);
@@ -37,7 +39,8 @@ int main(int argc, char **argv)
     scheme->addOperation({ new SelectElitism(1), new GeneticOperationMutationSwap(2) });
     scheme->addOperation({ new SelectTournament(15), new GeneticOperation });
 
-    // vyber lustenej sifry
+    // vyber lustenej sifry, cesta k zasifrovanemu textu sa nacita
+    // ako prvy argument programu
     Cipher *cipher = Monoalphabetic::fromFile(argv[1]);
 
     // vyber fitness funkcie
@@ -46,12 +49,14 @@ int main(int argc, char **argv)
     GA node(scheme, cipher, fitness, migrator);
     node.setId(app.rank());
 
-    println("PGA: started");
+    DBG_LOG("starting node: " << app.rank());
     node.start();
 
-    string pt;
-    cipher->decrypt(node.population()[0].genes(), pt);
-    println("GA node " << node.id() << " decrypted: " << pt);
+    if (app.rank() == 0) {
+        string pt;
+        cipher->decrypt(node.population()[0].genes(), pt);
+        println("GA node " << node.id() << " decrypted: " << pt);
+    }
 
     return 0;
 }
