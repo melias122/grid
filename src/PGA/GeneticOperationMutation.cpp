@@ -22,7 +22,7 @@ void GeneticOperationMutation::apply(Population &pop)
         for (int g = 0; g < c.size(); g++) {
             double r = Random.Double();
             if (r < mutationProbability) {
-                c.genes()[g] = abcChars[Random.Uint64(0, sizeof(abcChars) - 1)];
+                c.genes()[g] = abcString[Random.Uint64(0, abcString.size() - 1)];
             }
         }
     }

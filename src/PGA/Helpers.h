@@ -2,32 +2,26 @@
 #define HELPERS_H_INCLUDED
 
 #include <algorithm>
-#include <string>
-#include <vector>
-
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
+#include <vector>
+
+#include "Random.h"
 
 using namespace std;
 
-const char abcChars[] = {
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-    's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-};
+const string abcString = "abcdefghijklmnopqrstuvwxyz";
 
 namespace Helpers
 {
 
 static string rndAbcPermutation()
 {
-    string perm(26, 0);
-    for (int i = 0; i < perm.size(); i++) {
-        perm[i] = abcChars[i];
-    }
-    random_shuffle(begin(perm), end(perm));
-    return perm;
+    string s(abcString);
+    Random.Shuffle(s.begin(), s.end());
+    return s;
 }
 
 static string readFile(string path)
