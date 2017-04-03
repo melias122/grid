@@ -2,6 +2,8 @@
 
 #include "Helpers.h"
 
+using namespace std;
+
 Monoalphabetic *Monoalphabetic::fromFile(string path)
 {
     return new Monoalphabetic(Helpers::readFile(path));
