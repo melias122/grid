@@ -1,12 +1,8 @@
 list(APPEND PGA_SOURCES
 	Cipher.cpp
 	GA.cpp
-	Select.cpp
 	GeneticOperationMutationSwapAll.cpp
 	SelectElitism.cpp
-	SchemeGA.cpp
-	GeneticOperation.cpp
-	Fitness.cpp
 	GeneticOperationCrossover.cpp
 	GeneticOperationMutationSwap.cpp
     Migrator.cpp
