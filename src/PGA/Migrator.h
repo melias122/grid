@@ -42,6 +42,10 @@ private:
 class Migrator
 {
 public:
+    Migrator(int migrationTime)
+        : p_migrationTime{ migrationTime }
+    {
+    }
     ~Migrator() {}
 
     virtual void migrate(int senderId, int itteration, Population &population) = 0;
@@ -58,9 +62,6 @@ public:
 
     void printMigrations();
 
-    // nastavi kedy sa ma vykonat migracia, kazdu n-tu iteraciu (nthItteration)
-    void setMigrationTime(int nthItteration) { p_migrationTime = nthItteration; }
-
 protected:
     static std::map<int, std::set<Migration>> p_senderMigrations;
     static std::map<int, std::set<int>> p_receiverMigrations;
@@ -71,6 +72,10 @@ protected:
 class MpiMigrator : public Migrator
 {
 public:
+    MpiMigrator(int migrationTime)
+        : Migrator(migrationTime)
+    {
+    }
     void migrate(int senderId, int itteration, Population &population) override;
 
 private:
