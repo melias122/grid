@@ -11,12 +11,14 @@ class Cipher;
 class Fitness;
 class Generator;
 
-using Genes = std::string;
+using Genes = std::vector<int>;
+std::ostream &operator<<(std::ostream &os, const Genes &p);
+std::string to_string(const Genes &g);
 
 class Chromosome
 {
 public:
-    Chromosome(const Genes &genes = "", double score = .0)
+    Chromosome(const Genes &genes = Genes(), double score = .0)
         : m_genes{ genes }
         , m_score{ score }
     {

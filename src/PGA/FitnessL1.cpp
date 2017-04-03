@@ -41,12 +41,12 @@ L1DistanceMonograms *L1DistanceMonograms::fromFile(string path)
     return new L1DistanceMonograms(monograms);
 }
 
-double L1DistanceMonograms::evaluate(const string &in)
+double L1DistanceMonograms::evaluate(const Genes &in)
 {
     double m[26] = { 0 };
-    double sum = 0, div = in.length();
+    double sum = 0, div = in.size();
 
-    for (int i = 0; i < in.length(); i++) {
+    for (int i = 0; i < in.size(); i++) {
         char a = in[i];
         m[a - 'a']++;
     }
@@ -79,12 +79,12 @@ L1DistanceBigrams *L1DistanceBigrams::fromFile(string path)
     return new L1DistanceBigrams(bigrams);
 }
 
-double L1DistanceBigrams::evaluate(const string &in)
+double L1DistanceBigrams::evaluate(const Genes &in)
 {
     double m[26][26] = { 0 };
-    double sum = 0, div = in.length() - 1;
+    double sum = 0, div = in.size() - 1;
 
-    for (size_t i = 0; i < in.length() - 1; i++) {
+    for (size_t i = 0; i < in.size() - 1; i++) {
         m[in[i] - 'a'][in[i + 1] - 'a'] += 1.0;
     }
 
@@ -105,12 +105,12 @@ double L1DistanceBigrams::evaluate(const string &in)
 //{
 //}
 
-double L1DistanceTrigrams::evaluate(const std::string &in)
+double L1DistanceTrigrams::evaluate(const Genes &in)
 {
     double m[26][26][26] = { 0 };
-    double sum = 0, div = in.length() - 2;
+    double sum = 0, div = in.size() - 2;
 
-    for (size_t i = 0; i < in.length() - 2; i++) {
+    for (size_t i = 0; i < in.size() - 2; i++) {
         char a = in[i];
         char b = in[i + 1];
         char c = in[i + 2];

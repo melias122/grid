@@ -34,8 +34,9 @@ int main(int argc, char **argv)
     }
 
     // generator chromozomov
-    Genes alphabet = "abcdefghijklmnopqrstuvwxyz";
-    Generator *generator = new ShuffleGenerator(alphabet);
+    string alphabet = "abcdefghijklmnopqrstuvwxyz";
+    Genes genes(alphabet.begin(), alphabet.end());
+    Generator *generator = new ShuffleGenerator(genes);
 
     // vyber lustenej sifry, cesta k zasifrovanemu textu sa nacita
     // ako prvy argument programu
@@ -54,9 +55,9 @@ int main(int argc, char **argv)
     Population pop = GeneticAlgorithm::run(app.rank(), scheme);
 
     if (app.rank() == 0) {
-        string pt;
+        Genes pt;
         cipher->decrypt(pop[0].genes(), pt);
-        println("GA node " << app.rank() << " decrypted: " << pt);
+        println("GA node " << app.rank() << " decrypted: " << to_string(pt));
     }
 
     return 0;

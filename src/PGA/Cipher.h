@@ -1,13 +1,15 @@
 #ifndef CIPHER_H
 #define CIPHER_H
 
+#include "Chromosome.h"
+
 #include <string>
 
 class Cipher
 {
 public:
     ~Cipher() {}
-    virtual void decrypt(const std::string &key, std::string &plaintext) = 0;
+    virtual void decrypt(const Genes &key, Genes &plaintext) = 0;
 };
 
 class Monoalphabetic : public Cipher
@@ -18,7 +20,7 @@ public:
     {
     }
     static Monoalphabetic *fromFile(std::string path);
-    void decrypt(const std::string &key, std::string &plaintext) override;
+    void decrypt(const Genes &key, Genes &plaintext) override;
 
 private:
     std::string m_ciphertext;

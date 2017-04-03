@@ -4,6 +4,20 @@
 #include "Fitness.h"
 #include "Random.h"
 
+std::ostream &operator<<(std::ostream &os, const Genes &p)
+{
+    os << "{ ";
+    for (auto &c : p) {
+        os << c << " ";
+    }
+    return os << "}";
+}
+
+std::string to_string(const Genes &g)
+{
+    return std::string(g.begin(), g.end());
+}
+
 Chromosome::Chromosome(Generator *generator, Cipher *cipher, Fitness *fitness)
 {
     m_genes = generator->generate();
@@ -12,7 +26,7 @@ Chromosome::Chromosome(Generator *generator, Cipher *cipher, Fitness *fitness)
 
 void Chromosome::calculateScore(Cipher *cipher, Fitness *fitness)
 {
-    std::string plaintext;
+    Genes plaintext;
     cipher->decrypt(m_genes, plaintext);
     m_score = fitness->evaluate(plaintext);
 }

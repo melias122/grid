@@ -15,8 +15,9 @@ int main(int argc, char **argv)
     }
 
     // generator pociatocnej populacie
-    Genes alphabet = "abcdefghijklmnopqrstuvwxyz";
-    Generator *generator = new ShuffleGenerator(alphabet);
+    string alphabet = "abcdefghijklmnopqrstuvwxyz";
+    Genes genes(alphabet.begin(), alphabet.end());
+    Generator *generator = new ShuffleGenerator(genes);
 
     // vyber lustenej sifry
     Cipher *cipher = Monoalphabetic::fromFile(argv[1]);
@@ -35,9 +36,9 @@ int main(int argc, char **argv)
     println("GeneticAlgorithm started");
     Population pop = GeneticAlgorithm::run(0, scheme);
 
-    string pt;
+    Genes pt;
     cipher->decrypt(pop[0].genes(), pt);
-    println("GeneticAlgorithm decrypted = " << pt);
+    println("GeneticAlgorithm decrypted = " << to_string(pt));
 
     return 0;
 }

@@ -11,7 +11,7 @@ public:
     L1DistanceMonograms(const std::vector<double> &referenceMonograms);
     static L1DistanceMonograms *fromFile(std::string path);
 
-    double evaluate(const std::string &in) override;
+    double evaluate(const Genes &in) override;
 
 private:
     std::vector<double> m_monograms;
@@ -23,7 +23,7 @@ public:
     L1DistanceBigrams(const std::vector<std::vector<double>> &referenceBigrams);
     static L1DistanceBigrams *fromFile(std::string path);
 
-    double evaluate(const std::string &in) override;
+    double evaluate(const Genes &in) override;
 
 private:
     std::vector<std::vector<double>> m_bigrams;
@@ -35,7 +35,7 @@ public:
     L1DistanceTrigrams(const std::vector<std::vector<std::vector<double>>> &referenceTrigrams);
     L1DistanceTrigrams *fromFile(std::string path);
 
-    double evaluate(const std::string &in);
+    double evaluate(const Genes &in);
 
 private:
     std::vector<std::vector<std::vector<double>>> m_trigrams;
