@@ -1,19 +1,22 @@
 #ifndef GENOPMUT_H
 #define GENOPMUT_H
 
-#include "Chromosome.h"
 #include "GeneticOperation.h"
 
 class GeneticOperationMutation : public GeneticOperation
 {
 public:
-    GeneticOperationMutation();
-    GeneticOperationMutation(double mutProb);
-
+    // mutationProbability should be between <0, 1>
+    GeneticOperationMutation(double mutationProbability, const Genes &genes)
+        : m_mutationProbability{ mutationProbability }
+        , m_genes{ genes }
+    {
+    }
     void apply(Population &pop) override;
 
 private:
-    double mutationProbability;
+    double m_mutationProbability;
+    Genes m_genes;
 };
 
 #endif

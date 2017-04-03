@@ -1,28 +1,13 @@
 #include "GeneticOperationMutation.h"
 
-#include "Helpers.h"
 #include "Random.h"
-
-GeneticOperationMutation::GeneticOperationMutation()
-{
-    mutationProbability = 0.01;
-}
-
-GeneticOperationMutation::GeneticOperationMutation(double mutProb)
-{
-    mutationProbability = mutProb;
-}
 
 void GeneticOperationMutation::apply(Population &pop)
 {
-    // for all chromosomes
-    // for all genes
-    for (int i = 0; i < pop.size(); i++) {
-        Chromosome &c = pop[i];
-        for (int g = 0; g < c.size(); g++) {
-            double r = Random.Double();
-            if (r < mutationProbability) {
-                c.genes()[g] = abcString[Random.Uint64(0, abcString.size() - 1)];
+    for (Chromosome &c : pop) {
+        for (auto &g : c.genes()) {
+            if (Random.Double(0, 1) < m_mutationProbability) {
+                g = m_genes[Random.Uint64(0, m_genes.size() - 1)];
             }
         }
     }
