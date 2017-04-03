@@ -6,7 +6,6 @@
 class Select
 {
 public:
-    Select() {}
     Select(uint subpopulationSize)
         : m_subpopulationSize{ subpopulationSize }
     {
