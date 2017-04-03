@@ -10,7 +10,7 @@
 #include "GeneticOperationMutationSwap.h"
 #include "GeneticOperationMutationSwapAll.h"
 #include "Migrator.h"
-#include "SchemeGA.h"
+#include "Scheme.h"
 #include "SelectElitism.h"
 #include "SelectRandom.h"
 #include "SelectTournament.h"

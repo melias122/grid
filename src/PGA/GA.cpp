@@ -1,69 +1,41 @@
 #include "GA.h"
 
-#include "Helpers.h"
+using std::get;
+using std::shared_ptr;
 
-#include <iostream>
-
-using namespace std;
-
-GA::GA(SchemeGA *scheme, Cipher *cipher, Fitness *fitness, Migrator *migrator)
-    : m_scheme{ scheme }
-    , m_cipher{ cipher }
-    , m_fitness{ fitness }
-    , m_migrator{ migrator }
+Population GeneticAlgorithm::run(int id, const Scheme &scheme)
 {
-    static int id{ 0 };
-    m_id = id++;
+    Population pop, newpop;
 
-    if (m_migrator) {
-        m_migrator->setMigrationTime(m_scheme->migrationTime());
+    // create initial population
+    for (int i = 0; i < scheme.initialPopulation; i++) {
+        pop.emplace_back(scheme.generator.get(), scheme.cipher.get(), scheme.fitness.get());
     }
-}
 
-void GA::init()
-{
-    double score;
-    string plaintext, genes;
-    m_population.reserve(m_scheme->initialPopulation());
-    for (int i = 0; i < m_scheme->initialPopulation(); i++) {
-        genes = Helpers::rndAbcPermutation();
-        m_cipher->decrypt(genes, plaintext);
-        score = m_fitness->evaluate(plaintext);
-        m_population.emplace_back(genes, score);
-    }
-}
+    for (int i = 1; i <= scheme.iterations; i++) {
 
-void GA::start()
-{
-    init();
-    for (int i = 1; i <= m_scheme->maxIteration(); i++) {
-
-        if (m_migrator) {
-            m_migrator->migrate(m_id, i, m_population);
-        }
-        applyOperations();
-    }
-}
-
-void GA::applyOperations()
-{
-    string plaintext;
-    Population newpop;
-    newpop.reserve(m_population.size());
-
-    for (const Operation &o : m_scheme->operations()) {
-
-        Population selected = o.select->select(m_population);
-        o.genetic->apply(selected);
-
-        for (size_t j = 0; j < selected.size(); j++) {
-            m_cipher->decrypt(selected[j].genes(), plaintext);
-            double score = m_fitness->evaluate(plaintext);
-            selected[j].setScore(score);
+        if (scheme.migrator) {
+            scheme.migrator->migrate(id, i, pop);
         }
 
-        newpop.insert(newpop.begin(), selected.begin(), selected.end());
+        newpop.clear();
+        for (auto &o : scheme.operations) {
+
+            auto &select = get<shared_ptr<Select>>(o);
+            auto &geneticOperation = get<shared_ptr<GeneticOperation>>(o);
+
+            Population selected = select->select(pop);
+            geneticOperation->apply(selected);
+
+            for (size_t j = 0; j < selected.size(); j++) {
+                selected[j].calculateScore(scheme.cipher.get(), scheme.fitness.get());
+            }
+
+            newpop.insert(newpop.begin(), selected.begin(), selected.end());
+        }
+
+        pop.swap(newpop);
     }
 
-    m_population = newpop;
+    return pop;
 }

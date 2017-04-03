@@ -33,7 +33,7 @@ load_modules() {
 	fi
 }
 
-build_all() {
+build_debug() {
 	load_modules
 	build_boost
 	clang_format_all
@@ -51,7 +51,7 @@ build_all() {
 
 while getopts ":adr:" opt; do
 	case "${opt}" in
-		a) build_all
+		a) build_debug
 		   ;;
 #		r) run opt
 #		   ;;

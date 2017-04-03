@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     }
 
     // vytvorenie migracnej schemy
-    Migrator *migrator = new MpiMigrator;
+    Migrator *migrator = new MpiMigrator(3000);
     migrator->addMigration(1, 0, Migration::Type::Best, 5);
     migrator->addMigration(2, 0, Migration::Type::Random, 15);
     migrator->addMigration(3, 0, Migration::Type::Tournament, 7);
@@ -33,11 +33,9 @@ int main(int argc, char **argv)
         migrator->printMigrations();
     }
 
-    // vytvorenie schemy genetickeho algroritmu
-    SchemeGA *scheme = new SchemeGA(10000, 3000, 80);
-    scheme->addOperation({ new SelectElitism(1), new GeneticOperation });
-    scheme->addOperation({ new SelectElitism(1), new GeneticOperationMutationSwap(2) });
-    scheme->addOperation({ new SelectTournament(15), new GeneticOperation });
+    // generator chromozomov
+    Genes alphabet = "abcdefghijklmnopqrstuvwxyz";
+    Generator *generator = new ShuffleGenerator(alphabet);
 
     // vyber lustenej sifry, cesta k zasifrovanemu textu sa nacita
     // ako prvy argument programu
@@ -46,16 +44,19 @@ int main(int argc, char **argv)
     // vyber fitness funkcie
     Fitness *fitness = L1DistanceBigrams::fromFile(argv[2]);
 
-    GA node(scheme, cipher, fitness, migrator);
-    node.setId(app.rank());
+    // vytvorenie schemy genetickeho algroritmu
+    Scheme scheme(10000, 80, generator, cipher, fitness, migrator);
+    scheme.addOperations(new SelectElitism(1), new GeneticOperation);
+    scheme.addOperations(new SelectElitism(1), new GeneticOperationMutationSwap(2));
+    scheme.addOperations(new SelectTournament(15), new GeneticOperation);
 
     DBG_LOG("starting node: " << app.rank());
-    node.start();
+    Population pop = GeneticAlgorithm::run(app.rank(), scheme);
 
     if (app.rank() == 0) {
         string pt;
-        cipher->decrypt(node.population()[0].genes(), pt);
-        println("GA node " << node.id() << " decrypted: " << pt);
+        cipher->decrypt(pop[0].genes(), pt);
+        println("GA node " << app.rank() << " decrypted: " << pt);
     }
 
     return 0;

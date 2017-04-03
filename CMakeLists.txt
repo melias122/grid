@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1.0)
 project(grid CXX)
 
 set(CMAKE_CXX_COMPILER mpic++)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wno-unused-function -Wno-sign-compare -DDEBUG")
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")

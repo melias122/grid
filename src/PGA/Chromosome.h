@@ -7,19 +7,27 @@
 #include <string>
 #include <vector>
 
+class Cipher;
+class Fitness;
+class Generator;
+
+using Genes = std::string;
+
 class Chromosome
 {
 public:
-    Chromosome(const std::string &genes = "", double score = 0)
+    Chromosome(const Genes &genes = "", double score = .0)
         : m_genes{ genes }
         , m_score{ score }
     {
     }
 
+    Chromosome(Generator *generator, Cipher *cipher, Fitness *fitness);
+
     double score() const { return m_score; }
-    void setScore(double score) { m_score = score; }
+    void calculateScore(Cipher *cipher, Fitness *fitness);
     int size() const { return m_genes.size(); }
-    std::string &genes() { return m_genes; }
+    Genes &genes() { return m_genes; }
 
     struct byBestScore {
         inline bool operator()(const Chromosome &c1, const Chromosome &c2) const
@@ -40,12 +48,34 @@ private:
         ar &m_score;
     }
 
-    std::string m_genes;
-    double m_score{ 0.0 };
+    Genes m_genes;
+    double m_score;
 };
 
 using Population = std::vector<Chromosome>;
 
 std::ostream &operator<<(std::ostream &os, const Population &p);
+
+class Generator
+{
+public:
+    Generator(const Genes &genes)
+        : genes{ genes }
+    {
+    }
+    virtual Genes generate() = 0;
+
+    Genes genes;
+};
+
+class ShuffleGenerator : public Generator
+{
+public:
+    ShuffleGenerator(const Genes &genes)
+        : Generator(genes)
+    {
+    }
+    Genes generate() override;
+};
 
 #endif // CHROMOSOME_H
