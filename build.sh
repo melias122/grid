@@ -4,13 +4,7 @@ set -e
 CC=mpicc
 CXX=mpicxx
 BUILD_DIR=_build
-
-usage() {
-	echo "Usage: $0 [-a] [-r project]" 1>&2
-	echo "   -a: builds all projects" 1>&2
-	echo "   -r: runs project" 1>&2
-	exit 1
-}
+BUILD=Debug # or Release
 
 build_boost() {
 	if [ ! -f vendor/.boost.lock ]; then
@@ -33,31 +27,38 @@ load_modules() {
 	fi
 }
 
-build_debug() {
+build() {
 	load_modules
 	build_boost
 	clang_format_all
 	mkdir -p $BUILD_DIR
 	cd $BUILD_DIR
 
-#	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-	cmake -DCMAKE_BUILD_TYPE=Debug ..
+	cmake -DCMAKE_BUILD_TYPE=$1 ..
 	make -j $(nproc)
 }
 
+usage() {
+	echo "Usage: $0 [-b|--build] [-h|--help] [-r|--run bin/project_name]"
+	echo "   -b|--build: builds whole project and binaries"
+	echo "   -h|--help:  prints this help"
+	echo "   -r|--run:   runs executable"
+	exit 1
+}
 
-#run() {
-#}
+# parsing options with getopt https://gist.github.com/cosimo/3760587
+OPTS=`getopt -o hbr: --long help,build,run: -n $0 -- "$@"`
+if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 
-while getopts ":adr:" opt; do
-	case "${opt}" in
-		a) build_debug
-		   ;;
-#		r) run opt
-#		   ;;
-		*) usage
-		   ;;
+# echo "$OPTS"
+eval set -- "$OPTS"
+
+while true; do
+	case "$1" in
+		-h | --help ) usage ;;
+		-b | --build ) build $BUILD; shift ;;
+		-r | --run ) echo todo ; shift ;;
+		-- ) shift; break ;;
+		* ) break ;;
 	esac
 done
-shift $((OPTIND-1))
-
