@@ -22,12 +22,15 @@ public:
     {
     }
 
+    // generates 64-bit unsigned int from range <min, max>
     uint64_t Uint64(uint64_t min = uint64_min, uint64_t max = uint64_max)
     {
         std::uniform_int_distribution<uint64_t> dist(min, max);
         return dist(_mt);
     }
 
+    // Generates random double from range <min, max>.
+    // By default min is set to 0
     double Double(double min = 0, double max = double_max)
     {
         std::uniform_real_distribution<double> dist(min, max);
