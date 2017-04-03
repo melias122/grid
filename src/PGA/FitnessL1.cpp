@@ -58,8 +58,7 @@ double L1DistanceMonograms::evaluate(const Genes &in)
     return -sum;
 }
 
-L1DistanceBigrams::L1DistanceBigrams(
-    const vector<vector<double>> &referenceBigrams)
+L1DistanceBigrams::L1DistanceBigrams(const vector<vector<double>> &referenceBigrams)
     : m_bigrams{ referenceBigrams }
 {
 }
@@ -97,13 +96,28 @@ double L1DistanceBigrams::evaluate(const Genes &in)
     return -sum;
 }
 
-//L1DistanceTrigrams::L1DistanceTrigrams(const vector<vector<vector<double>>> &referenceTrigrams)
-//{
-//}
+L1DistanceTrigrams::L1DistanceTrigrams(const vector<vector<vector<double>>> &referenceTrigrams)
+    : m_trigrams{ referenceTrigrams }
+{
+}
 
-//L1DistanceTrigrams *L1DistanceTrigrams::fromFile(std::string path)
-//{
-//}
+L1DistanceTrigrams *L1DistanceTrigrams::fromFile(string path)
+{
+    vector<vector<vector<double>>> trigrams(26);
+    for (vector<vector<double>> &vv : trigrams) {
+        vv.resize(26);
+        for (vector<double> &v : vv) {
+            v.resize(26, .0);
+        }
+    }
+
+    for (const tuple<string, double> &t : parseCsv(path)) {
+        string s = get<string>(t);
+        trigrams[s[0] - 'a'][s[1] - 'a'][s[2] - 'a'] = get<double>(t);
+    }
+
+    return new L1DistanceTrigrams(trigrams);
+}
 
 double L1DistanceTrigrams::evaluate(const Genes &in)
 {
@@ -111,10 +125,7 @@ double L1DistanceTrigrams::evaluate(const Genes &in)
     double sum = 0, div = in.size() - 2;
 
     for (size_t i = 0; i < in.size() - 2; i++) {
-        char a = in[i];
-        char b = in[i + 1];
-        char c = in[i + 2];
-        m[a - 'a'][b - 'a'][c - 'a'] += 1.0f;
+        m[in[i] - 'a'][in[i + 1] - 'a'][in[i + 2] - 'a'] += 1.0;
     }
 
     for (int i = 0; i < 26; i++) {
