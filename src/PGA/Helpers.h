@@ -12,17 +12,8 @@
 
 using namespace std;
 
-const string abcString = "abcdefghijklmnopqrstuvwxyz";
-
 namespace Helpers
 {
-
-static string rndAbcPermutation()
-{
-    string s(abcString);
-    Random.Shuffle(s.begin(), s.end());
-    return s;
-}
 
 static string readFile(string path)
 {
