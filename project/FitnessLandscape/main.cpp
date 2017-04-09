@@ -131,8 +131,8 @@ int main(int argc, char **argv)
         // master node
 
         for (int k = 0; k < dlzky_hesiel.size(); k++) {
-            for (int i = 2201; i <= 2300; i++) {
-                for (int j = 200; j <= 200; j = j + 50) {
+            for (int i = 1; i <= 4000; i++) {
+                for (int j = 50; j <= 2000; j = j + 50) {
 
                     string path, ciphertext, plaintext;
                     path.append(argv[3]);
