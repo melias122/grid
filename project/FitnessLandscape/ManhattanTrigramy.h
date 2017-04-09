@@ -2,15 +2,14 @@
 #include "FitnessFunctionss.h"
 #include <vector>
 
-class ManhattanTrigramy:public FitnessFunctionss
+class ManhattanTrigramy : public FitnessFunctionss
 {
 public:
-	std::vector<std::vector<std::vector<double>>> trigramy;
-	std::string nazov;
+    std::vector<std::vector<std::vector<double>>> trigramy;
+    std::string nazov;
 
-	ManhattanTrigramy();
-	~ManhattanTrigramy();
-	ManhattanTrigramy(std::string nazov);
-	void fit();
+    ManhattanTrigramy();
+    ~ManhattanTrigramy();
+    ManhattanTrigramy(std::string nazov);
+    void fit();
 };
-

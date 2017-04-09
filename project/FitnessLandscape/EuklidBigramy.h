@@ -2,18 +2,17 @@
 #include "FitnessFunctionss.h"
 #include <vector>
 
-class EuklidBigramy :public FitnessFunctionss
+class EuklidBigramy : public FitnessFunctionss
 {
 public:
-	std::string nazov;
-	std::vector<std::vector<double>>bigramy;
+    std::string nazov;
+    std::vector<std::vector<double>> bigramy;
 
-	EuklidBigramy(std::string nazov);
+    EuklidBigramy(std::string nazov);
 
-	EuklidBigramy();
+    EuklidBigramy();
 
-	~EuklidBigramy();
+    ~EuklidBigramy();
 
-	void fit();
+    void fit();
 };
-
