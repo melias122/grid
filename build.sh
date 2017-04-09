@@ -21,9 +21,7 @@ clang_format_all() {
 
 load_modules() {
 	if hash module 2>/dev/null; then
-		module load cmake/3.1.0
-		module load gcc/5.4
-		module load mvapich2/2.2
+		module load cmake/3.1.0 gcc/5.4 mvapich2/2.2
 	fi
 }
 
