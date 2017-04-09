@@ -1,29 +1,26 @@
-#!/bin/sh 
+#!/bin/bash 
 
 #PBS -N LHSNG
 #PBS -A 3ANTAL-2016
 #PBS -q parallel
-#PBS -e job.stderr
-#PBS -o job.stdout
-
-# #PBS -M xelias@stuba.sk
-# #PBS -e SimpleMPI.stderr
-# #PBS -o SimpleMPI.stdout
+#PBS -M xelias@stuba.sk
 
 # skript žiada o 2 výpočtové uzly, 6 procesorových jadier na uzol, pre každé jadro/proces 200MB fyzickej pamäte na 2 minúty
-#PBS -l nodes=4:ppn=8,pmem=100mb,walltime=72:00:00
+#PBS -l nodes=4:ppn=12,pmem=100mb,walltime=2:00:00
 #PBS -m ea
 
-application="$(pwd)/bin/FitnessLandscape"
+home="/home/3xelias/FitnessLandscape"
+
+application="$home/FitnessLandscape $home/input/bigrams.csv $home/input/trigrams.csv $home/input/ct/ $home/input/pt/"
 
 # štandardný výstup z aplikácie sa bude priebežne zapisovať do súboru "OUT"
-#options="> OUT"
+options="> job.stdout"
 
 . /etc/profile.d/modules.sh
 module purge
-module load openmpi/1.6.5
+module load gcc/5.4 mvapich2/2.2
 
-CMD="mpirun --report-bindings $application $options"
+CMD="mpirun $application $options"
 
 ###############################################################
 

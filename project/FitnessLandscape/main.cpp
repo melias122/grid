@@ -20,7 +20,19 @@
 
 using namespace std;
 
-Statistika *horolezec(int dlzka_hesla, string sifrovany, string plaintext, vector<FitnessFunctionss *> fitness, int pocet_inicializacii, PracaSoSubormi *subory, FitnessLandscape *landscape, int poradove_cislo)
+enum {
+    tag_status,
+    tag_dlzka_hesla,
+    tag_ciphertext,
+    tag_plaintext,
+    tag_poradove_cislo,
+    tag_worker,
+
+    status_work,
+    status_exit
+};
+
+void horolezec(int dlzka_hesla, string sifrovany, string plaintext, vector<FitnessFunctionss *> fitness, int pocet_inicializacii, PracaSoSubormi *subory, FitnessLandscape *landscape, int poradove_cislo)
 {
     vector<pair<int, int>> swapy;
     vector<int> inicialny_kluc;
@@ -29,16 +41,11 @@ Statistika *horolezec(int dlzka_hesla, string sifrovany, string plaintext, vecto
     map<vector<int>, double> zhoda;
     map<vector<int>, int> pocetnost_extremov;
     string nazov;
-    Statistika *stat = new Statistika();
 
     swapy = landscape->generujSwapy(dlzka_hesla);
 
     for (vector<FitnessFunctionss *>::iterator fitit = fitness.begin(); fitit != fitness.end(); fitit++) {
-        cout << "fitnes funkcia: " << (*fitit)->nazov << endl;
-
         for (int k = 0; k < pocet_inicializacii; k++) {
-            if ((k + 1) % (pocet_inicializacii / 50) == 0)
-                cout << k << endl;
             inicialny_kluc = landscape->vygenerujKluc(dlzka_hesla);
 
             vysledok = landscape->landscape(sifrovany, inicialny_kluc, swapy, *fitit);
@@ -68,14 +75,11 @@ Statistika *horolezec(int dlzka_hesla, string sifrovany, string plaintext, vecto
 
         subory->ulozCSV(skore, zhoda, nazov, pocetnost_extremov);
 
-        stat = new Statistika((*fitit)->nazov, sifrovany.size(), dlzka_hesla, pocet_inicializacii, skore, zhoda, pocetnost_extremov);
         nazov.clear();
         pocetnost_extremov.clear();
         skore.clear();
         zhoda.clear();
     }
-
-    return stat;
 }
 
 // ./prog bigramy.csv trigramy.csv cesta/k/ciphertext/ cesta/k/plaintext/
@@ -91,12 +95,12 @@ int main(int argc, char **argv)
     auto comm = app.communicator();
     srand(time(0));
 
-    PracaSoSubormi *subory = new PracaSoSubormi();
-    FitnessLandscape *landscape = new FitnessLandscape();
+    PracaSoSubormi subory;
+    FitnessLandscape landscape;
 
-    subory->nacitajBigramy(argv[1]);
-    subory->nacitajTrigramy(argv[2]);
-    subory->nacitajTrigramyTop(argv[2]);
+    subory.nacitajBigramy(argv[1]);
+    subory.nacitajTrigramy(argv[2]);
+    subory.nacitajTrigramyTop(argv[2]);
 
     vector<int> dlzky_hesiel;
     dlzky_hesiel.push_back(5);
@@ -105,36 +109,30 @@ int main(int argc, char **argv)
     dlzky_hesiel.push_back(30);
     dlzky_hesiel.push_back(50);
 
-    EuklidBigramy *eukBi = new EuklidBigramy("euklidBigramy");
-    eukBi->bigramy = subory->bigramy;
-    EuklidTrigramy *eukTri = new EuklidTrigramy("euklidTrigramy");
-    eukTri->trigramy = subory->trigramy;
-    ManhattanBigramy *manBi = new ManhattanBigramy("manhattanBigramy");
-    manBi->bigramy = subory->bigramy;
-    ManhattanTrigramy *manTri = new ManhattanTrigramy("manhattanTrigramy");
-    manTri->trigramy = subory->trigramy;
-    //    PocetTrigramov *manTriTop = new PocetTrigramov("pocetTrigramov");
-    //    manTriTop->trigramy = subory->trigramy_top;
+    EuklidBigramy eukBi("euklidBigramy");
+    eukBi.bigramy = subory.bigramy;
+    EuklidTrigramy eukTri("euklidTrigramy");
+    eukTri.trigramy = subory.trigramy;
+    ManhattanBigramy manBi("manhattanBigramy");
+    manBi.bigramy = subory.bigramy;
+    ManhattanTrigramy manTri("manhattanTrigramy");
+    manTri.trigramy = subory.trigramy;
+    //    PocetTrigramov manTriTop("pocetTrigramov");
+    //    manTriTop.trigramy = subory.trigramy_top;
 
     vector<FitnessFunctionss *> fitness;
-    fitness.push_back(eukBi);
-    fitness.push_back(eukTri);
-    fitness.push_back(manBi);
-    fitness.push_back(manTri);
-    //    fitness.push_back(manTriTop);
+    fitness.push_back(&eukBi);
+    fitness.push_back(&eukTri);
+    fitness.push_back(&manBi);
+    fitness.push_back(&manTri);
+    //    fitness.push_back(&manTriTop);
 
-    vector<Statistika *> statistiky;
-
-    // master node
     if (app.rank() == 0) {
-        // posiela plaintext ciphertext pary
+        // master node
 
         for (int k = 0; k < dlzky_hesiel.size(); k++) {
-            cout << "dlzka hesla " << dlzky_hesiel[k] << endl;
-
             for (int i = 2201; i <= 2300; i++) {
                 for (int j = 200; j <= 200; j = j + 50) {
-                    cout << "dlzka textu " << j << endl;
 
                     string path, ciphertext, plaintext;
                     path.append(argv[3]);
@@ -149,7 +147,7 @@ int main(int argc, char **argv)
                     if (subor.is_open()) {
                         subor >> ciphertext;
                     } else {
-                        cout << "can't open " << path << "\n";
+                        cout << "M:can't open " << path << "\n";
                         continue;
                     }
                     subor.close();
@@ -170,7 +168,7 @@ int main(int argc, char **argv)
                     if (subor.is_open()) {
                         subor >> plaintext;
                     } else {
-                        cout << "can't open " << path << "\n";
+                        cout << "M:can't open " << path << "\n";
                         continue;
                     }
                     subor.close();
@@ -181,61 +179,58 @@ int main(int argc, char **argv)
                     }
 
                     if (plaintext == "" || ciphertext == "") {
-                        cout << "plaintext or ciphertext empty\n";
+                        cout << "M:plaintext or ciphertext empty\n";
                         continue;
                     }
 
                     // mpi communication
 
-                    int workerId;
+                    int worker;
 
                     // wait until we have available worker
-                    cout << "waiting for worker\n";
-                    comm.recv<int>(mpi::any_source, 0, workerId);
-                    cout << "have worker " << workerId << "\n";
+                    cout << "M:waiting for worker" << endl;
+                    comm.recv<int>(mpi::any_source, tag_worker, worker);
+                    cout << "M:sending work (dlzka_hesla=" << dlzky_hesiel[k] << ",poradove_cislo=" << i << ",dlzka_textu=" << j << ") to " << worker << endl;
 
                     // tell worker there is something to do
-                    comm.send<int>(workerId, 0, 0);
+                    comm.send<int>(worker, tag_status, status_work);
 
-                    comm.send<int>(workerId, 1, dlzky_hesiel[k]);
-                    comm.send<string>(workerId, 2, ciphertext);
-                    comm.send<string>(workerId, 3, plaintext);
-                    comm.send<int>(workerId, 4, i);
+                    comm.send<int>(worker, tag_dlzka_hesla, dlzky_hesiel[k]);
+                    comm.send<string>(worker, tag_ciphertext, ciphertext);
+                    comm.send<string>(worker, tag_plaintext, plaintext);
+                    comm.send<int>(worker, tag_poradove_cislo, i);
                 }
             }
         }
 
         // when everything is done, shutdown workers
         for (int i = 1; i < app.size(); i++) {
-            comm.send<int>(i, 0, 1);
+            comm.send<int>(i, tag_status, status_exit);
         }
 
     } else {
-        // worker node
+        // worker node, master node is 0
         while (1) {
             int status;
 
             // tell master we are free and wait for master for something to do or shutdown
-            comm.sendrecv<int>(0, 0, app.rank(), 0, 0, status);
+            comm.sendrecv<int>(0, tag_worker, app.rank(), 0, tag_status, status);
 
-            if (status != 0) {
-                // there is no more work
+            if (status != status_work) {
+                // nothing to do, exit
                 break;
             }
 
             int dlzka_hesla, i;
             string ciphertext, plaintext;
-            comm.recv<int>(0, 1, dlzka_hesla);
-            comm.recv<string>(0, 2, ciphertext);
-            comm.recv<string>(0, 3, plaintext);
-            comm.recv<int>(0, 4, i);
+            comm.recv<int>(0, tag_dlzka_hesla, dlzka_hesla);
+            comm.recv<string>(0, tag_ciphertext, ciphertext);
+            comm.recv<string>(0, tag_plaintext, plaintext);
+            comm.recv<int>(0, tag_poradove_cislo, i);
 
-            cout << "worker " << app.rank() << " running\n";
-            statistiky.push_back(horolezec(dlzka_hesla, ciphertext, plaintext, fitness, 1000, subory, landscape, i));
-            cout << "worker " << app.rank() << " done\n";
+            horolezec(dlzka_hesla, ciphertext, plaintext, fitness, 1000, &subory, &landscape, i);
         }
     }
-    //subory->statVystup(statistiky);
 
     return 0;
 }
