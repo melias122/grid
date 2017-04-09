@@ -42,9 +42,9 @@ void PracaSoSubormi::ulozCSV(std::map<std::vector<int>, double> vystup, std::map
     }
 }
 
-void PracaSoSubormi::nacitajBigramy()
+void PracaSoSubormi::nacitajBigramy(const std::string &path)
 {
-    std::ifstream subor("fr_2.csv");
+    std::ifstream subor(path);
     std::string bigram;
     double hodnota;
 
@@ -61,9 +61,9 @@ void PracaSoSubormi::nacitajBigramy()
     this->bigramy = refer;
 }
 
-void PracaSoSubormi::nacitajTrigramy()
+void PracaSoSubormi::nacitajTrigramy(const std::string &path)
 {
-    std::ifstream subor("fr_3.csv");
+    std::ifstream subor(path);
     std::string trigram;
     double hodnota;
 
@@ -79,9 +79,9 @@ void PracaSoSubormi::nacitajTrigramy()
     this->trigramy = refer;
 }
 
-void PracaSoSubormi::nacitajTrigramyTop()
+void PracaSoSubormi::nacitajTrigramyTop(const std::string &path)
 {
-    std::ifstream subor("fr_3.csv");
+    std::ifstream subor(path);
     std::string trigram;
     double hodnota;
     std::map<std::string, double> trigramy;

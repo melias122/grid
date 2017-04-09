@@ -17,8 +17,8 @@ public:
 
     std::string nacitajText(std::string nazov);
     void ulozCSV(std::map<std::vector<int>, double> vystup, std::map<std::vector<int>, double> zhoda, std::string nazov, std::map<std::vector<int>, int> pocetnost_extremov);
-    void nacitajBigramy();
-    void nacitajTrigramy();
-    void nacitajTrigramyTop();
+    void nacitajBigramy(const std::string &path);
+    void nacitajTrigramy(const std::string &path);
+    void nacitajTrigramyTop(const std::string &path);
     void statVystup(std::vector<Statistika *> statistiky);
 };

@@ -16,6 +16,8 @@
 #include <time.h>
 #include <vector>
 
+#include "MpiApp.h"
+
 using namespace std;
 
 Statistika *horolezec(int dlzka_hesla, string sifrovany, string plaintext, vector<FitnessFunctionss *> fitness, int pocet_inicializacii, PracaSoSubormi *subory, FitnessLandscape *landscape, int poradove_cislo)
@@ -76,31 +78,32 @@ Statistika *horolezec(int dlzka_hesla, string sifrovany, string plaintext, vecto
     return stat;
 }
 
-int main()
+// ./prog bigramy.csv trigramy.csv cesta/k/ciphertext/ cesta/k/plaintext/
+int main(int argc, char **argv)
 {
+    MpiApp app;
+
+    if (argc != 5) {
+        cout << "Usage: " << argv[0] << " /cesta/k/bigramy.csv cesta/k/trigramy.csv /cesta/k/ciphertext/ /cesta/k/plaintext/ \n";
+        return 1;
+    }
+
+    auto comm = app.communicator();
     srand(time(0));
+
     PracaSoSubormi *subory = new PracaSoSubormi();
     FitnessLandscape *landscape = new FitnessLandscape();
 
-    subory->nacitajBigramy();
-    subory->nacitajTrigramy();
-    subory->nacitajTrigramyTop();
+    subory->nacitajBigramy(argv[1]);
+    subory->nacitajTrigramy(argv[2]);
+    subory->nacitajTrigramyTop(argv[2]);
 
     vector<int> dlzky_hesiel;
     dlzky_hesiel.push_back(5);
     dlzky_hesiel.push_back(10);
     dlzky_hesiel.push_back(20);
-    //dlzky_hesiel.push_back(30);
-    //dlzky_hesiel.push_back(50);
-
-    vector<int> pocet_inicializacii;
-    pocet_inicializacii.push_back(1000);
-    pocet_inicializacii.push_back(10000);
-    //pocet_inicializacii.push_back(100000);
-
-    vector<int> kluc;
-    vector<int> inicialny_kluc;
-    string sifrovany;
+    dlzky_hesiel.push_back(30);
+    dlzky_hesiel.push_back(50);
 
     EuklidBigramy *eukBi = new EuklidBigramy("euklidBigramy");
     eukBi->bigramy = subory->bigramy;
@@ -110,81 +113,129 @@ int main()
     manBi->bigramy = subory->bigramy;
     ManhattanTrigramy *manTri = new ManhattanTrigramy("manhattanTrigramy");
     manTri->trigramy = subory->trigramy;
-    PocetTrigramov *manTriTop = new PocetTrigramov("pocetTrigramov");
-    manTriTop->trigramy = subory->trigramy_top;
+    //    PocetTrigramov *manTriTop = new PocetTrigramov("pocetTrigramov");
+    //    manTriTop->trigramy = subory->trigramy_top;
 
     vector<FitnessFunctionss *> fitness;
     fitness.push_back(eukBi);
     fitness.push_back(eukTri);
     fitness.push_back(manBi);
     fitness.push_back(manTri);
-    fitness.push_back(manTriTop);
+    //    fitness.push_back(manTriTop);
 
-    vector<pair<int, int>> swapy;
-    pair<vector<int>, double> vysledok;
-    map<vector<int>, double> skore;
-    map<vector<int>, double> zhoda;
-
-    string nazov1, nazov2, plaintext;
     vector<Statistika *> statistiky;
-    Statistika *stat;
-    ifstream subor;
 
-    for (int i = 2201; i <= 2300; i++) {
-        for (int j = 200; j <= 200; j = j + 50) {
-            cout << "dlzka textu " << j << endl;
-            for (int k = 0; k < dlzky_hesiel.size(); k++) {
-                cout << "dlzka hesla " << dlzky_hesiel[k] << endl;
-                nazov1.append("ct\\");
-                nazov1.append(to_string(i));
-                nazov1.append("_");
-                nazov1.append(to_string(j));
-                nazov1.append("_");
-                nazov1.append(to_string(dlzky_hesiel[k]));
-                nazov1.append(".txt");
+    // master node
+    if (app.rank() == 0) {
+        // posiela plaintext ciphertext pary
 
-                subor.open(nazov1);
-                if (subor.is_open()) {
-                    subor >> sifrovany;
+        for (int k = 0; k < dlzky_hesiel.size(); k++) {
+            cout << "dlzka hesla " << dlzky_hesiel[k] << endl;
+
+            for (int i = 2201; i <= 2300; i++) {
+                for (int j = 200; j <= 200; j = j + 50) {
+                    cout << "dlzka textu " << j << endl;
+
+                    string path, ciphertext, plaintext;
+                    path.append(argv[3]);
+                    path.append(to_string(i));
+                    path.append("_");
+                    path.append(to_string(j));
+                    path.append("_");
+                    path.append(to_string(dlzky_hesiel[k]));
+                    path.append(".txt");
+
+                    ifstream subor(path);
+                    if (subor.is_open()) {
+                        subor >> ciphertext;
+                    } else {
+                        cout << "can't open " << path << "\n";
+                        continue;
+                    }
+                    subor.close();
+
+                    for (string::iterator strit = ciphertext.begin(); strit != ciphertext.end(); strit++) {
+                        if (*strit >= 'a' && *strit <= 'z')
+                            *strit = *strit - 32;
+                    }
+
+                    path.clear();
+                    path.append(argv[4]);
+                    path.append(to_string(i));
+                    path.append("_");
+                    path.append(to_string(j));
+                    path.append(".txt");
+
+                    subor.open(path);
+                    if (subor.is_open()) {
+                        subor >> plaintext;
+                    } else {
+                        cout << "can't open " << path << "\n";
+                        continue;
+                    }
+                    subor.close();
+
+                    for (string::iterator strit = plaintext.begin(); strit != plaintext.end(); strit++) {
+                        if (*strit >= 'a' && *strit <= 'z')
+                            *strit = *strit - 32;
+                    }
+
+                    if (plaintext == "" || ciphertext == "") {
+                        cout << "plaintext or ciphertext empty\n";
+                        continue;
+                    }
+
+                    // mpi communication
+
+                    int workerId;
+
+                    // wait until we have available worker
+                    cout << "waiting for worker\n";
+                    comm.recv<int>(mpi::any_source, 0, workerId);
+                    cout << "have worker " << workerId << "\n";
+
+                    // tell worker there is something to do
+                    comm.send<int>(workerId, 0, 0);
+
+                    comm.send<int>(workerId, 1, dlzky_hesiel[k]);
+                    comm.send<string>(workerId, 2, ciphertext);
+                    comm.send<string>(workerId, 3, plaintext);
+                    comm.send<int>(workerId, 4, i);
                 }
-
-                for (string::iterator strit = sifrovany.begin(); strit != sifrovany.end(); strit++) {
-                    if (*strit >= 'a' && *strit <= 'z')
-                        *strit = *strit - 32;
-                }
-
-                subor.close();
-
-                nazov2.append("pt\\");
-                nazov2.append(to_string(i));
-                nazov2.append("_");
-                nazov2.append(to_string(j));
-                nazov2.append(".txt");
-
-                subor.open(nazov2);
-                if (subor.is_open()) {
-                    subor >> plaintext;
-                }
-
-                for (string::iterator strit = plaintext.begin(); strit != plaintext.end(); strit++) {
-                    if (*strit >= 'a' && *strit <= 'z')
-                        *strit = *strit - 32;
-                }
-                subor.close();
-
-                if (sifrovany.size() > 0) {
-                    statistiky.push_back(horolezec(dlzky_hesiel[k], sifrovany, plaintext, fitness, 1000, subory, landscape, i));
-                }
-
-                nazov1.clear();
-                nazov2.clear();
-                sifrovany.clear();
-                plaintext.clear();
             }
+        }
+
+        // when everything is done, shutdown workers
+        for (int i = 1; i < app.size(); i++) {
+            comm.send<int>(i, 0, 1);
+        }
+
+    } else {
+        // worker node
+        while (1) {
+            int status;
+
+            // tell master we are free and wait for master for something to do or shutdown
+            comm.sendrecv<int>(0, 0, app.rank(), 0, 0, status);
+
+            if (status != 0) {
+                // there is no more work
+                break;
+            }
+
+            int dlzka_hesla, i;
+            string ciphertext, plaintext;
+            comm.recv<int>(0, 1, dlzka_hesla);
+            comm.recv<string>(0, 2, ciphertext);
+            comm.recv<string>(0, 3, plaintext);
+            comm.recv<int>(0, 4, i);
+
+            cout << "worker " << app.rank() << " running\n";
+            statistiky.push_back(horolezec(dlzka_hesla, ciphertext, plaintext, fitness, 1000, subory, landscape, i));
+            cout << "worker " << app.rank() << " done\n";
         }
     }
     //subory->statVystup(statistiky);
 
-    cin.get();
     return 0;
 }

@@ -11,3 +11,4 @@ add_executable(FitnessLandscape
     Statistika.cpp
 )
 
+target_link_libraries(FitnessLandscape grid)
