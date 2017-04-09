@@ -26,7 +26,7 @@ CMD="mpirun $application $options"
 
 # prechod do priečinka odkiaľ bola spustená úloha
 cd $PBS_O_WORKDIR
-echo -e "Changed directory to $(pwd).n"
+echo -e "Changed directory to $(pwd)"
 JOBID=$(echo $PBS_JOBID | sed -e "s/..*$//")
 
 echo -e "JobID: $JOBIDn======"
@@ -36,11 +36,11 @@ echo "Current directory: $(pwd)"
 
 if [ -r "$PBS_NODEFILE" ]; then
 	cat $PBS_NODEFILE | uniq > machfile
-	echo -e "nNodes allocated:n================"
+	echo -e "Nodes allocated:================"
 	echo $(cat machfile | sed -e "s/..*$//g")
 fi
 
-echo -e "nnumprocs=$PBS_NP, numnodes=$PBS_NUM_NODES, ppn=$PBS_NUM_PPN"
-echo -e "nExecuting command:n==================n$CMDn"
+echo -e "numprocs=$PBS_NP, numnodes=$PBS_NUM_NODES, ppn=$PBS_NUM_PPN"
+echo -e "Executing command:==================$CMD"
 
 eval $CMD
