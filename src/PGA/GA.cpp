@@ -1,13 +1,12 @@
 #include "GA.h"
 
-using std::get;
 using std::shared_ptr;
 
 Population GeneticAlgorithm::run(int id, const Scheme &scheme)
 {
-    Population pop, newpop;
+    Population pop;
 
-    // create initial population
+    // Create initial population
     for (int i = 0; i < scheme.initialPopulation; i++) {
         pop.emplace_back(scheme.generator.get(), scheme.cipher.get(), scheme.fitness.get());
     }
@@ -18,24 +17,24 @@ Population GeneticAlgorithm::run(int id, const Scheme &scheme)
             scheme.migrator->migrate(id, i, pop);
         }
 
-        newpop.clear();
-        for (auto &o : scheme.operations) {
+        Population newpop;
+        for (const std::vector<Operation> &ops : scheme.operations) {
+            Population subpop = pop;
+            for (const Operation &op : ops) {
 
-            auto &select = get<shared_ptr<Select>>(o);
-            auto &geneticOperation = get<shared_ptr<GeneticOperation>>(o);
+                subpop = op.select->select(subpop);
+                op.geneticOperation->apply(subpop);
 
-            Population selected = select->select(pop);
-            geneticOperation->apply(selected);
-
-            for (size_t j = 0; j < selected.size(); j++) {
-                selected[j].calculateScore(scheme.cipher.get(), scheme.fitness.get());
+                for (Chromosome &c : subpop) {
+                    c.calculateScore(scheme.cipher.get(), scheme.fitness.get());
+                }
             }
-
-            newpop.insert(newpop.begin(), selected.begin(), selected.end());
+            append(newpop, subpop);
         }
-
         pop.swap(newpop);
     }
+
+    std::sort(pop.begin(), pop.end(), Chromosome::byBestScore());
 
     return pop;
 }

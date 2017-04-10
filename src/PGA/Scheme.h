@@ -9,8 +9,18 @@
 #include "Select.h"
 
 #include <memory>
-#include <tuple>
 #include <vector>
+
+struct Operation {
+    Operation(Select *s, GeneticOperation *o)
+        : select{ s }
+        , geneticOperation{ o }
+    {
+    }
+
+    std::shared_ptr<Select> select;
+    std::shared_ptr<GeneticOperation> geneticOperation;
+};
 
 struct Scheme {
     Scheme(
@@ -29,21 +39,26 @@ struct Scheme {
     {
     }
 
-    void addOperations(Select *s, GeneticOperation *o)
+    std::vector<Operation> &addOperations(Select *s, GeneticOperation *o)
     {
-        // Uses Chromosome constructor
-        operations.emplace_back(std::shared_ptr<Select>(s), std::shared_ptr<GeneticOperation>(o));
+        operations.push_back({ Operation(s, o) });
+        return operations.back();
+    }
+
+    void replaceOperations(const std::vector<std::vector<Operation>> &ops)
+    {
+        operations = ops;
     }
 
     int iterations;
     int initialPopulation;
 
-    std::shared_ptr<Generator> generator;
-    std::shared_ptr<Cipher> cipher;
-    std::shared_ptr<Fitness> fitness;
-    std::shared_ptr<Migrator> migrator;
+    std::unique_ptr<Generator> generator;
+    std::unique_ptr<Cipher> cipher;
+    std::unique_ptr<Fitness> fitness;
+    std::unique_ptr<Migrator> migrator;
 
-    std::vector<std::tuple<std::shared_ptr<Select>, std::shared_ptr<GeneticOperation>>> operations;
+    std::vector<std::vector<Operation>> operations;
 };
 
 #endif
