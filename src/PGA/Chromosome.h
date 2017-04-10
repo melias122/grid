@@ -55,8 +55,8 @@ private:
 };
 
 using Population = std::vector<Chromosome>;
-
 std::ostream &operator<<(std::ostream &os, const Population &p);
+void append(Population &p0, const Population &p1);
 
 class Generator
 {
@@ -65,6 +65,12 @@ public:
         : genes{ genes }
     {
     }
+
+    Generator(const std::string &alphabet)
+        : genes(alphabet.begin(), alphabet.end())
+    {
+    }
+
     virtual Genes generate() = 0;
 
     Genes genes;
@@ -73,8 +79,8 @@ public:
 class ShuffleGenerator : public Generator
 {
 public:
-    ShuffleGenerator(const Genes &genes)
-        : Generator(genes)
+    ShuffleGenerator(const std::string &alphabet)
+        : Generator{ alphabet }
     {
     }
     Genes generate() override;

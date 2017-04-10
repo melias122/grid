@@ -107,7 +107,7 @@ void MpiMigrator::migrate(int senderId, int itteration, Population &p)
         for (const int &id : p_receiverMigrations[senderId]) {
             Population pop;
             comm.recv<Population>(id, 0, pop);
-            p.insert(p.end(), pop.begin(), pop.end());
+            append(p, pop);
 
             DBG_LOG(senderId << "<- " << id << " = " << pop);
         }
