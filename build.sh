@@ -4,7 +4,7 @@ set -e
 CC=mpicc
 CXX=mpicxx
 BUILD_DIR=_build
-BUILD=Debug # or Release
+BUILD=RelWithDebInfo  # Debug, Release, RelWithDebInfo
 
 build_boost() {
 	if [ ! -f vendor/.boost.lock ]; then

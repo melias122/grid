@@ -5,9 +5,6 @@ project(grid CXX)
 set(CMAKE_CXX_COMPILER mpic++)
 set(CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wno-unused-function -Wno-sign-compare -DDEBUG")
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 find_package(MPI REQUIRED)
