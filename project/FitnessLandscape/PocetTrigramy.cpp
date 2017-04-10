@@ -14,11 +14,10 @@ PocetTrigramov::PocetTrigramov(std::string nazov)
 
 void PocetTrigramov::fit()
 {
-    int pocet = 0;
+    double pocet = 0;
 
     for (int i = 0; i < this->desifrovany.size() - 2; i++) {
-        if (this->trigramy[this->desifrovany[i] - 'A'][this->desifrovany[i + 1] - 'A'][this->desifrovany[i + 2] - 'A'] == true)
-            pocet++;
+        pocet = pocet + this->trigramy[this->desifrovany[i] - 'A'][this->desifrovany[i + 1] - 'A'][this->desifrovany[i + 2] - 'A'];
     }
     this->vysledok = (double)pocet;
 }

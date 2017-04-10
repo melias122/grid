@@ -8,7 +8,7 @@
 class PracaSoSubormi
 {
 public:
-    std::vector<std::vector<std::vector<bool>>> trigramy_top;
+    std::vector<std::vector<std::vector<double>>> trigramy_top;
     std::vector<std::vector<std::vector<double>>> trigramy;
     std::vector<std::vector<double>> bigramy;
 

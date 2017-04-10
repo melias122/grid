@@ -83,23 +83,25 @@ void PracaSoSubormi::nacitajTrigramyTop(const std::string &path)
 {
     std::ifstream subor(path);
     std::string trigram;
-    double hodnota;
-    std::map<std::string, double> trigramy;
+    double hodnota, maxhod = 0;
+    std::string maxstring;
+    std::multimap<double, std::string> trigramy;
+    std::map<std::string, double> pom;
 
     while (!subor.eof()) {
         subor >> trigram;
         subor >> hodnota;
 
-        trigramy.insert(std::pair<std::string, double>(trigram, hodnota));
+        trigramy.insert(std::pair<double, std::string>(hodnota, trigram));
     }
 
-    std::map<std::string, double>::iterator trit = trigramy.end();
+    std::vector<std::vector<std::vector<double>>> refer(26, std::vector<std::vector<double>>(26, std::vector<double>(26, 0)));
+
+    std::multimap<double, std::string>::iterator trit = trigramy.end();
     trit--;
 
-    std::vector<std::vector<std::vector<bool>>> refer(26, std::vector<std::vector<bool>>(26, std::vector<bool>(26, 0)));
-
     for (int i = 0; i < 1000; i++) {
-        refer[(*trit).first[0] - 'a'][(*trit).first[1] - 'a'][(*trit).first[2] - 'a'] = true;
+        refer[(*trit).second[0] - 'a'][(*trit).second[1] - 'a'][(*trit).second[2] - 'a'] = (*trit).first;
         trit--;
     }
 

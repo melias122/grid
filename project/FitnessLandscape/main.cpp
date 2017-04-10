@@ -117,15 +117,15 @@ int main(int argc, char **argv)
     manBi.bigramy = subory.bigramy;
     ManhattanTrigramy manTri("manhattanTrigramy");
     manTri.trigramy = subory.trigramy;
-    //    PocetTrigramov manTriTop("pocetTrigramov");
-    //    manTriTop.trigramy = subory.trigramy_top;
+    PocetTrigramov manTriTop("pocetTrigramov");
+    manTriTop.trigramy = subory.trigramy_top;
 
     vector<FitnessFunctionss *> fitness;
     fitness.push_back(&eukBi);
     fitness.push_back(&eukTri);
     fitness.push_back(&manBi);
     fitness.push_back(&manTri);
-    //    fitness.push_back(&manTriTop);
+    fitness.push_back(&manTriTop);
 
     if (app.rank() == 0) {
         // master node
@@ -202,7 +202,6 @@ int main(int argc, char **argv)
                 }
             }
         }
-
         // when everything is done, shutdown workers
         for (int i = 1; i < app.size(); i++) {
             int worker;
@@ -230,7 +229,10 @@ int main(int argc, char **argv)
             comm.recv<string>(0, tag_plaintext, plaintext);
             comm.recv<int>(0, tag_poradove_cislo, i);
 
-            horolezec(dlzka_hesla, ciphertext, plaintext, fitness, 1000, &subory, &landscape, i);
+            if (dlzka_hesla <= 20)
+                horolezec(dlzka_hesla, ciphertext, plaintext, fitness, 100000, &subory, &landscape, i);
+            else
+                horolezec(dlzka_hesla, ciphertext, plaintext, fitness, 50000, &subory, &landscape, i);
         }
     }
 

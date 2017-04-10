@@ -5,7 +5,7 @@
 class PocetTrigramov : public FitnessFunctionss
 {
 public:
-    std::vector<std::vector<std::vector<bool>>> trigramy;
+    std::vector<std::vector<std::vector<double>>> trigramy;
     std::string nazov;
 
     PocetTrigramov();
