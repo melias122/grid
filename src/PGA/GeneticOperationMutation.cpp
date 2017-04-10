@@ -7,7 +7,7 @@ void GeneticOperationMutation::apply(Population &pop)
     for (Chromosome &c : pop) {
         for (auto &g : c.genes()) {
             if (Random.Double(0, 1) < m_mutationProbability) {
-                g = m_genes[Random.Uint64(0, m_genes.size() - 1)];
+                g = Random.Item(m_genes);
             }
         }
     }

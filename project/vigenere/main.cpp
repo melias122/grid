@@ -14,7 +14,7 @@ string randomString(const int len)
 {
     string s(len, 0);
     for (int i = 0; i < len; ++i) {
-        s[i] = alphanum[Random.Uint64(0, alphanum.size() - 1)];
+        s[i] = Random.Item(alphanum);
     }
     return s;
 }

@@ -7,8 +7,8 @@
 
 // note: this header is not Thread-safe
 
-constexpr uint64_t uint64_min = std::numeric_limits<uint64_t>::min();
-constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
+constexpr int int_min = std::numeric_limits<int>::min();
+constexpr int int_max = std::numeric_limits<int>::max();
 
 constexpr double double_min = std::numeric_limits<double>::min();
 constexpr double double_max = std::numeric_limits<double>::max();
@@ -22,10 +22,10 @@ public:
     {
     }
 
-    // generates 64-bit unsigned int from range <min, max>
-    uint64_t Uint64(uint64_t min = uint64_min, uint64_t max = uint64_max)
+    // generates int from range <min, max>
+    int Int(int min = 0, int max = int_max)
     {
-        std::uniform_int_distribution<uint64_t> dist(min, max);
+        std::uniform_int_distribution<int> dist(min, max);
         return dist(_mt);
     }
 
@@ -41,6 +41,13 @@ public:
     void Shuffle(Iterator first, Iterator last)
     {
         std::shuffle(first, last, _mt);
+    }
+
+    template <class Vector>
+    auto &Item(const Vector &v)
+    {
+        int i = Int(0, v.size() - 1);
+        return v[i];
     }
 
 private:

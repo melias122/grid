@@ -6,13 +6,15 @@
 class GeneticOperationMutationSwap : public GeneticOperation
 {
 public:
-    GeneticOperationMutationSwap();
-    GeneticOperationMutationSwap(int swapCnt);
+    GeneticOperationMutationSwap(int swaps = 1)
+        : m_swaps{ swaps }
+    {
+    }
 
     void apply(Population &population) override;
 
 private:
-    int swapsCount;
+    int m_swaps;
 };
 
 #endif
