@@ -21,6 +21,19 @@ void fillEmptyGenes(Genes &child, Genes genome)
     }
 }
 
+auto chooseParents(Population &pop)
+{
+    // choose 2 distinct parents
+    int i, j;
+
+    do {
+        i = Random.Int(0, pop.size() - 1);
+        j = Random.Int(0, pop.size() - 1);
+    } while (i == j);
+
+    return tie(pop[i].genes(), pop[j].genes());
+}
+
 void SinglePointCrossover::apply(Population &pop)
 {
     if (pop.size() <= 2) {
@@ -30,16 +43,10 @@ void SinglePointCrossover::apply(Population &pop)
     Population newpop;
     while (newpop.size() < pop.size()) {
 
-        // choose 2 distinct parents
-        int i, j;
+        Genes parent1;
+        Genes parent2;
 
-        do {
-            i = Random.Int(0, pop.size() - 1);
-            j = Random.Int(0, pop.size() - 1);
-        } while (i == j);
-
-        Genes &parent1 = pop[i].genes();
-        Genes &parent2 = pop[j].genes();
+        std::tie(parent1, parent2) = chooseParents(pop);
 
         // create empty genes of parent size
         Genes child(parent1.size(), empty_gene);
@@ -48,12 +55,12 @@ void SinglePointCrossover::apply(Population &pop)
         int point = Random.Int(1, parent1.size() - 2);
 
         // copy parent1 genes
-        for (i = 0; i < point; i++) {
+        for (int i = 0; i < point; i++) {
             child[i] = parent1[i];
         }
 
         // copy non matched parent2 genes
-        for (i = point; i < parent2.size(); i++) {
+        for (int i = point; i < parent2.size(); i++) {
             // if child does not have parent2 gene
             if (find(begin(child), end(child), parent2[i]) == end(child)) {
                 child[i] = parent2[i];
@@ -76,22 +83,16 @@ void UniformCrossover::apply(Population &pop)
     Population newpop;
     while (newpop.size() < pop.size()) {
 
-        // choose 2 distinct parents
-        int i, j;
+        Genes parent1;
+        Genes parent2;
 
-        do {
-            i = Random.Int(0, pop.size() - 1);
-            j = Random.Int(0, pop.size() - 1);
-        } while (i == j);
-
-        Genes &parent1 = pop[i].genes();
-        Genes &parent2 = pop[j].genes();
+        std::tie(parent1, parent2) = chooseParents(pop);
 
         // create empty genes of parent size
         Genes child(parent1.size(), empty_gene);
 
         // choose genes randomly from parent1 or parent2
-        for (i = 0; i < child.size(); i++) {
+        for (int i = 0; i < child.size(); i++) {
             int gene;
             switch (Random.Int(0, 1)) {
             case 0:
