@@ -3,13 +3,16 @@
 
 #include "GeneticOperation.h"
 
-class GeneticOperationCrossover : public GeneticOperation
+class SinglePointCrossover : public GeneticOperation
 {
 public:
     void apply(Population &pop) override;
+};
 
-private:
-    uint m_returnCount{ 1 };
+class UniformCrossover : public GeneticOperation
+{
+public:
+    void apply(Population &pop) override;
 };
 
 #endif
