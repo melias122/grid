@@ -9,7 +9,7 @@ class Cipher
 {
 public:
     ~Cipher() {}
-    virtual void decrypt(const Genes &key, Genes &plaintext) = 0;
+    virtual void decrypt(const Genes &key, std::string &plaintext) = 0;
 };
 
 class Monoalphabetic : public Cipher
@@ -20,7 +20,7 @@ public:
     {
     }
     static Monoalphabetic *fromFile(std::string path);
-    void decrypt(const Genes &key, Genes &plaintext) override;
+    void decrypt(const Genes &key, std::string &plaintext) override;
 
 private:
     std::string m_ciphertext;

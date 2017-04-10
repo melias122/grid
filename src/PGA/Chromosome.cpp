@@ -26,7 +26,7 @@ Chromosome::Chromosome(Generator *generator, Cipher *cipher, Fitness *fitness)
 
 void Chromosome::calculateScore(Cipher *cipher, Fitness *fitness)
 {
-    Genes plaintext;
+    std::string plaintext;
     cipher->decrypt(m_genes, plaintext);
     m_score = fitness->evaluate(plaintext);
 }
