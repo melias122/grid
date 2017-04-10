@@ -7,6 +7,16 @@ using namespace std;
 
 #define println(msg) cout << msg << endl
 
+vector<vector<Operation>> op1 = {
+    {
+        Operation(new SelectElitism(5), new GeneticOperation),
+        // Operation(...) moze byt nahradene { ... }
+        { new SelectElitism(3), new GeneticOperation },
+    },
+    { { new SelectElitism(1), new GeneticOperationMutationSwap(2) } },
+    { { new SelectTournament(15), new GeneticOperation } }
+};
+
 int main(int argc, char **argv)
 {
     // odstranenie argumentov 'mpirun -n 4' ./pga ...
@@ -30,13 +40,12 @@ int main(int argc, char **argv)
     migrator->addMigration(3, 0, Migration::Type::Tournament, 7);
 
     if (app.rank() == 0) {
-        migrator->printMigrations();
+        //        migrator->printMigrations();
     }
 
     // generator chromozomov
     string alphabet = "abcdefghijklmnopqrstuvwxyz";
-    Genes genes(alphabet.begin(), alphabet.end());
-    Generator *generator = new ShuffleGenerator(genes);
+    Generator *generator = new ShuffleGenerator(alphabet);
 
     // vyber lustenej sifry, cesta k zasifrovanemu textu sa nacita
     // ako prvy argument programu
@@ -47,17 +56,21 @@ int main(int argc, char **argv)
 
     // vytvorenie schemy genetickeho algroritmu
     Scheme scheme(10000, 80, generator, cipher, fitness, migrator);
-    scheme.addOperations(new SelectElitism(1), new GeneticOperation);
+    auto &suboperations = scheme.addOperations(new SelectElitism(5), new GeneticOperation);
+    suboperations.emplace_back(new SelectElitism(3), new GeneticOperation);
     scheme.addOperations(new SelectElitism(1), new GeneticOperationMutationSwap(2));
     scheme.addOperations(new SelectTournament(15), new GeneticOperation);
+
+    // rovnaku schemu by sme vytvorili
+    // scheme.replaceOperations(op1);
 
     DBG_LOG("starting node: " << app.rank());
     Population pop = GeneticAlgorithm::run(app.rank(), scheme);
 
     if (app.rank() == 0) {
-        Genes pt;
+        string pt;
         cipher->decrypt(pop[0].genes(), pt);
-        println("GA node " << app.rank() << " decrypted: " << to_string(pt));
+        println("GA node " << app.rank() << " decrypted: " << pt);
     }
 
     return 0;
