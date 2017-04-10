@@ -205,7 +205,9 @@ int main(int argc, char **argv)
 
         // when everything is done, shutdown workers
         for (int i = 1; i < app.size(); i++) {
-            comm.send<int>(i, tag_status, status_exit);
+            int worker;
+            comm.recv<int>(mpi::any_source, tag_worker, worker);
+            comm.send<int>(worker, tag_status, status_exit);
         }
 
     } else {
