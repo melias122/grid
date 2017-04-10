@@ -2,26 +2,25 @@
 
 #include "Helpers.h"
 
-static std::vector<std::vector<int>> comb;
+using namespace std;
+
+GeneticOperationMutationSwapAll::GeneticOperationMutationSwapAll(int genesCount)
+    : m_comb{ Helpers::comb(genesCount, 2) }
+{
+}
 
 void GeneticOperationMutationSwapAll::apply(Population &pop)
 {
-    if (comb.empty()) {
-        comb = Helpers::comb(pop[0].size(), 2);
-    }
-
-    Population allSwaps;
+    Population newpop;
     for (int i = 0; i < pop.size(); i++) {
-        for (int j = 0; j < comb.size(); j++) {
-            std::vector<int> toSwap = comb[j];
+        for (int j = 0; j < m_comb.size(); j++) {
+            std::vector<int> toSwap = m_comb[j];
             int a = toSwap[0];
             int b = toSwap[1];
-            Chromosome chrm = pop[i];
-            std::swap(chrm.genes()[a], chrm.genes()[b]);
-            allSwaps.push_back(chrm);
+            Chromosome c = pop[i];
+            std::swap(c.genes()[a], c.genes()[b]);
+            newpop.push_back(c);
         }
     }
-
-    pop.clear();
-    pop.insert(pop.begin(), allSwaps.begin(), allSwaps.end());
+    pop.swap(newpop);
 }
