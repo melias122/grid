@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void fillEmptyGenes(Genes &child, Genes genome)
+Genes fillEmptyGenes(Genes &child, Genes genome)
 {
     for (auto &child_gene : child) {
         if (child_gene == empty_gene) {
@@ -19,99 +19,99 @@ void fillEmptyGenes(Genes &child, Genes genome)
             }
         }
     }
-}
-
-auto chooseParents(Population &pop)
-{
-    // choose 2 distinct parents
-    int i, j;
-
-    do {
-        i = Random.Int(0, pop.size() - 1);
-        j = Random.Int(0, pop.size() - 1);
-    } while (i == j);
-
-    return tie(pop[i].genes(), pop[j].genes());
+    return child;
 }
 
 void SinglePointCrossover::apply(Population &pop)
 {
-    if (pop.size() <= 2) {
+    if (pop.size() != 2) {
         return;
     }
 
-    Population newpop;
-    while (newpop.size() < pop.size()) {
+    Genes parent1 = pop[0].genes();
+    Genes parent2 = pop[1].genes();
 
-        Genes parent1;
-        Genes parent2;
+    // choose random point, not begin, not end
+    int point = Random.Int(1, parent1.size() - 2);
 
-        std::tie(parent1, parent2) = chooseParents(pop);
+    // erase parents
+    pop.clear();
 
-        // create empty genes of parent size
-        Genes child(parent1.size(), empty_gene);
+    // add childrens
+    pop.emplace_back(crossover(parent1, parent2, point));
+    if (m_childrens > 1) {
+        pop.emplace_back(crossover(parent2, parent1, point));
+    }
+}
 
-        // choose random point, not begin, not end
-        int point = Random.Int(1, parent1.size() - 2);
+Genes SinglePointCrossover::crossover(const Genes &parent1, const Genes &parent2, int point)
+{
+    int genomeSize = parent1.size();
 
-        // copy parent1 genes
-        for (int i = 0; i < point; i++) {
-            child[i] = parent1[i];
-        }
+    // create empty genes of parent size
+    Genes child(genomeSize, empty_gene);
 
-        // copy non matched parent2 genes
-        for (int i = point; i < parent2.size(); i++) {
-            // if child does not have parent2 gene
-            if (find(begin(child), end(child), parent2[i]) == end(child)) {
-                child[i] = parent2[i];
-            }
-        }
-
-        fillEmptyGenes(child, parent1);
-        newpop.emplace_back(child);
+    // copy parent1 genes
+    for (int i = 0; i < point; i++) {
+        child[i] = parent1[i];
     }
 
-    pop.swap(newpop);
+    // copy non matched parent genes
+    for (int i = point; i < genomeSize; i++) {
+        // if child does not have parent2 gene
+        if (find(begin(child), end(child), parent2[i]) == end(child)) {
+            child[i] = parent2[i];
+        }
+    }
+
+    return fillEmptyGenes(child, parent1);
 }
 
 void UniformCrossover::apply(Population &pop)
 {
-    if (pop.size() <= 2) {
+    if (pop.size() != 2) {
         return;
     }
 
-    Population newpop;
-    while (newpop.size() < pop.size()) {
+    Genes parent1 = pop[0].genes();
+    Genes parent2 = pop[1].genes();
 
-        Genes parent1;
-        Genes parent2;
+    // create empty genes of parent size
+    Genes child1(parent1.size(), empty_gene);
+    Genes child2(parent1.size(), empty_gene);
 
-        std::tie(parent1, parent2) = chooseParents(pop);
+    // choose genes randomly from parent1 or parent2
+    for (int i = 0; i < child1.size(); i++) {
+        int gene1, gene2;
 
-        // create empty genes of parent size
-        Genes child(parent1.size(), empty_gene);
-
-        // choose genes randomly from parent1 or parent2
-        for (int i = 0; i < child.size(); i++) {
-            int gene;
-            switch (Random.Int(0, 1)) {
-            case 0:
-                gene = parent1[i];
-                break;
-            case 1:
-                gene = parent2[i];
-                break;
-            }
-
-            // if child does not have gene
-            if (find(begin(child), end(child), gene) == end(child)) {
-                child[i] = gene;
-            }
+        if (Random.Int(0, 1)) {
+            gene1 = parent1[i];
+            gene2 = parent2[i];
+        } else {
+            gene1 = parent2[i];
+            gene2 = parent1[i];
         }
 
-        fillEmptyGenes(child, parent1);
-        newpop.emplace_back(child);
+        // if child1 does not have gene
+        if (find(begin(child1), end(child1), gene1) == end(child1)) {
+            child1[i] = gene1;
+        }
+
+        // if child2 does not have gene
+        if (find(begin(child2), end(child2), gene2) == end(child2)) {
+            child2[i] = gene2;
+        }
     }
 
-    pop.swap(newpop);
+    fillEmptyGenes(child1, parent1);
+    fillEmptyGenes(child2, parent1);
+
+    // erase parents
+    pop.clear();
+
+    // add childrens
+    pop.emplace_back(child1);
+    if (m_childrens > 1) {
+        pop.emplace_back(child2);
+    }
 }
