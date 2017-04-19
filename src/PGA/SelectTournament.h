@@ -6,7 +6,7 @@
 class SelectTournament : public Select
 {
 public:
-    SelectTournament(uint n)
+    SelectTournament(int n)
         : Select(n)
     {
     }

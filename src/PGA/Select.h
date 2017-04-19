@@ -6,14 +6,14 @@
 class Select
 {
 public:
-    Select(uint subpopulationSize = 0)
+    Select(int subpopulationSize = -1)
         : m_subpopulationSize{ subpopulationSize }
     {
     }
     virtual Population select(Population p) { return p; }
 
 protected:
-    uint m_subpopulationSize;
+    int m_subpopulationSize;
 };
 
 #endif
