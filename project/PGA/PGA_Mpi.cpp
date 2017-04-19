@@ -1,11 +1,6 @@
-#include <iostream>
+#include "main.h"
 
 #include "MpiApp.h"
-#include "PGA.h"
-
-using namespace std;
-
-#define println(msg) cout << msg << endl
 
 vector<vector<Operation>> op1 = {
     {
@@ -43,10 +38,6 @@ int main(int argc, char **argv)
         //        migrator->printMigrations();
     }
 
-    // generator chromozomov
-    string alphabet = "abcdefghijklmnopqrstuvwxyz";
-    Generator *generator = new ShuffleGenerator(alphabet);
-
     // vyber lustenej sifry, cesta k zasifrovanemu textu sa nacita
     // ako prvy argument programu
     Cipher *cipher = Monoalphabetic::fromFile(argv[1]);
@@ -55,7 +46,7 @@ int main(int argc, char **argv)
     Fitness *fitness = L1DistanceBigrams::fromFile(argv[2]);
 
     // vytvorenie schemy genetickeho algroritmu
-    Scheme scheme(10000, 80, generator, cipher, fitness, migrator);
+    Scheme scheme(10000, 80, new ShuffleGenerator(alphabet), cipher, fitness, migrator);
     auto &suboperations = scheme.addOperations(new SelectElitism(5), new GeneticOperation);
     suboperations.emplace_back(new SelectElitism(3), new GeneticOperation);
     scheme.addOperations(new SelectElitism(1), new GeneticOperationMutationSwap(2));

@@ -1,10 +1,4 @@
-#include <iostream>
-
-#include "PGA.h"
-
-using namespace std;
-
-#define println(msg) std::cout << msg << std::endl
+#include "main.h"
 
 vector<vector<Operation>> op1 = {
     {

@@ -5,7 +5,6 @@ target_link_libraries(
 
     PGA
     grid
-    ${Boost_LIBRARIES}
 )
 
 add_executable(PGA_single PGA_single.cpp)
@@ -15,5 +14,13 @@ target_link_libraries(
 
     PGA
     grid
-    ${Boost_LIBRARIES}
+)
+
+add_executable(GA main_GA.cpp main.h)
+
+target_link_libraries(
+    GA
+
+    PGA
+    grid
 )
