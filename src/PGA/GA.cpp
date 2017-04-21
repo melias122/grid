@@ -8,7 +8,7 @@ Population GeneticAlgorithm::run(int id, const Scheme &scheme)
 
     // Create initial population
     for (int i = 0; i < scheme.initialPopulation; i++) {
-        pop.emplace_back(scheme.generator.get(), scheme.cipher.get(), scheme.fitness.get());
+        pop.emplace_back(scheme.generator, scheme.cipher, scheme.fitness);
     }
 
     for (int i = 1; i <= scheme.iterations; i++) {
@@ -26,7 +26,7 @@ Population GeneticAlgorithm::run(int id, const Scheme &scheme)
                 op.geneticOperation->apply(subpop);
 
                 for (Chromosome &c : subpop) {
-                    c.calculateScore(scheme.cipher.get(), scheme.fitness.get());
+                    c.calculateScore(scheme.cipher, scheme.fitness);
                 }
             }
             append(newpop, subpop);

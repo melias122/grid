@@ -53,10 +53,10 @@ struct Scheme {
     int iterations;
     int initialPopulation;
 
-    std::unique_ptr<Generator> generator;
-    std::unique_ptr<Cipher> cipher;
-    std::unique_ptr<Fitness> fitness;
-    std::unique_ptr<Migrator> migrator;
+    Generator *generator;
+    Cipher *cipher;
+    Fitness *fitness;
+    Migrator *migrator;
 
     std::vector<std::vector<Operation>> operations;
 };

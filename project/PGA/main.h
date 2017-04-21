@@ -118,7 +118,7 @@ auto schemaJ(int n)
 }
 
 using schema_func = vector<vector<Operation>>(int);
-unordered_map<string, schema_func *> schema = {
+unordered_map<string, schema_func *> operationSchema = {
     { "A", &schemaA },
     { "B", &schemaB },
     { "C", &schemaC },
