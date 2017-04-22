@@ -127,7 +127,7 @@ void run_writer(const mpi::communicator &comm)
 
         // text size; match; itterations; initial population; schema ID
         // 50       ; 41   ; 10000      ; 10                ; J
-        println(data.textsize << ";" << data.match << ";" << data.itterations << ";" << data.popsize << ";" << data.schemaId);
+        println(data.textsize << " " << data.match << " " << data.itterations << " " << data.popsize << " " << data.schemaId);
     }
 }
 

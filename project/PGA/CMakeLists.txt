@@ -24,3 +24,5 @@ target_link_libraries(
     PGA
     grid
 )
+
+add_executable(stat stat.cpp)
