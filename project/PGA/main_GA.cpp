@@ -109,7 +109,8 @@ void run_master(const mpi::communicator &comm, string dir)
         if (i == master || i == writer)
             continue;
 
-        comm.send<Data>(i, 1, exit);
+        comm.recv<Data>(mpi::any_source, 0, exit);
+        comm.send<Data>(exit.workerId, 1, exit);
     }
     comm.send<Data>(writer, 2, exit);
 }
@@ -122,13 +123,14 @@ void run_writer(const mpi::communicator &comm)
         comm.recv<Data>(mpi::any_source, 2, data);
 
         if (!data.status) {
-            return;
+            break;
         }
 
         // text size; match; itterations; initial population; schema ID
         // 50       ; 41   ; 10000      ; 10                ; J
         println(data.textsize << " " << data.match << " " << data.itterations << " " << data.popsize << " " << data.schemaId);
     }
+    cout.flush();
 }
 
 void run_worker(int id, const mpi::communicator &comm, string dir)
