@@ -104,14 +104,17 @@ void run_master(const mpi::communicator &comm, string dir)
     }
 
     Data exit;
-    exit.status = 0;
     for (int i = 0; i < comm.size(); i++) {
         if (i == master || i == writer)
             continue;
 
         comm.recv<Data>(mpi::any_source, 0, exit);
+
+        exit.status = 0;
         comm.send<Data>(exit.workerId, 1, exit);
     }
+
+    exit.status = 0;
     comm.send<Data>(writer, 2, exit);
 }
 
@@ -123,6 +126,7 @@ void run_writer(const mpi::communicator &comm)
         comm.recv<Data>(mpi::any_source, 2, data);
 
         if (!data.status) {
+            cerr << "writer: exiting" << endl;
             break;
         }
 
@@ -147,7 +151,8 @@ void run_worker(int id, const mpi::communicator &comm, string dir)
         comm.sendrecv<Data>(Node::master, 0, data, Node::master, 1, data);
 
         if (!data.status) {
-            return;
+            cerr << "worker: exiting " << id << endl;
+            break;
         }
 
         string pt = data.plaintext;
