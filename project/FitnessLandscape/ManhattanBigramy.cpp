@@ -1,4 +1,5 @@
 #include "ManhattanBigramy.h"
+#include <cmath>
 #include <map>
 #include <vector>
 
@@ -32,7 +33,7 @@ void ManhattanBigramy::fit()
 
     for (int i = 0; i < 26; i++) {
         for (int j = 0; j < 26; j++) {
-            vysledok = vysledok + abs(this->bigramy[i][j] - ((double)pocetnost[i][j] / ((double)this->desifrovany.size() - 1)));
+            vysledok = vysledok + fabs(this->bigramy[i][j] - ((double)pocetnost[i][j] / ((double)this->desifrovany.size() - 1)));
         }
     }
 

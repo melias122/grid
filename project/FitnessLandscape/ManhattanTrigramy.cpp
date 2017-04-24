@@ -1,4 +1,5 @@
 #include "ManhattanTrigramy.h"
+#include <cmath>
 #include <map>
 
 ManhattanTrigramy::ManhattanTrigramy()
@@ -32,7 +33,7 @@ void ManhattanTrigramy::fit()
     for (int i = 0; i < 26; i++) {
         for (int j = 0; j < 26; j++) {
             for (int k = 0; k < 26; k++)
-                vysledok = vysledok + abs(this->trigramy[i][j][k] - ((double)pocetnost[i][j][k] / ((double)this->desifrovany.size() - 1)));
+                vysledok = vysledok + fabs(this->trigramy[i][j][k] - ((double)pocetnost[i][j][k] / ((double)this->desifrovany.size() - 1)));
         }
     }
 
