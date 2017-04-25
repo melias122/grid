@@ -106,8 +106,8 @@ int main(int argc, char **argv)
     dlzky_hesiel.push_back(5);
     dlzky_hesiel.push_back(10);
     dlzky_hesiel.push_back(20);
-    dlzky_hesiel.push_back(30);
-    dlzky_hesiel.push_back(50);
+    //    dlzky_hesiel.push_back(30);
+    //    dlzky_hesiel.push_back(50);
 
     EuklidBigramy eukBi("euklidBigramy");
     eukBi.bigramy = subory.bigramy;
@@ -121,11 +121,11 @@ int main(int argc, char **argv)
     manTriTop.trigramy = subory.trigramy_top;
 
     vector<FitnessFunctionss *> fitness;
-    fitness.push_back(&eukBi);
-    fitness.push_back(&eukTri);
+    //    fitness.push_back(&eukBi);
+    //    fitness.push_back(&eukTri);
     fitness.push_back(&manBi);
     fitness.push_back(&manTri);
-    fitness.push_back(&manTriTop);
+    //    fitness.push_back(&manTriTop);
 
     if (app.rank() == 0) {
         // master node
