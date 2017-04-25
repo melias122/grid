@@ -60,12 +60,11 @@ void horolezec(int dlzka_hesla, string sifrovany, string plaintext, vector<Fitne
             }
         }
 
+        nazov.append("heslo" + to_string(dlzka_hesla) + "/"); // directory
         nazov.append("text");
         nazov.append(to_string(sifrovany.size()));
         nazov.append("_");
         nazov.append(to_string((poradove_cislo % 100)));
-        nazov.append("_heslo");
-        nazov.append(to_string(dlzka_hesla));
         nazov.append("_");
         nazov.append((*fitit)->nazov);
         nazov.append("_");
