@@ -102,8 +102,8 @@ int main(int argc, char **argv)
     subory.nacitajTrigramyTop(argv[2]);
 
     vector<int> dlzky_hesiel;
-    dlzky_hesiel.push_back(5);
-    dlzky_hesiel.push_back(10);
+    // dlzky_hesiel.push_back(5);
+    // dlzky_hesiel.push_back(10);
     dlzky_hesiel.push_back(20);
     //    dlzky_hesiel.push_back(30);
     //    dlzky_hesiel.push_back(50);
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 
         for (int k = 0; k < dlzky_hesiel.size(); k++) {
             for (int i = 1; i <= 4000; i++) {
-                for (int j = 50; j <= 2000; j = j + 50) {
+                for (int j = 400; j <= 800; j = j + 200) {
 
                     string path, ciphertext, plaintext;
                     path.append(argv[3]);
