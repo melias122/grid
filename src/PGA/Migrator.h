@@ -51,7 +51,7 @@ public:
     virtual void migrate(int senderId, int itteration, Population &population) = 0;
 
     // migracia typu sender <-> receiver
-    static void addMigration(int senderId, int receiverId, Migration::Type type, int chooseMax)
+    void addMigration(int senderId, int receiverId, Migration::Type type, int chooseMax)
     {
         p_senderMigrations[senderId].emplace(receiverId, type, chooseMax);
         //        p_senderMigrations[receiverId].emplace(senderId, type, chooseMax);
@@ -63,8 +63,8 @@ public:
     void printMigrations();
 
 protected:
-    static std::map<int, std::set<Migration>> p_senderMigrations;
-    static std::map<int, std::set<int>> p_receiverMigrations;
+    std::map<int, std::set<Migration>> p_senderMigrations;
+    std::map<int, std::set<int>> p_receiverMigrations;
 
     int p_migrationTime{ 0 };
 };

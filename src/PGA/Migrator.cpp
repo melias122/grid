@@ -10,9 +10,6 @@
 
 using namespace std;
 
-map<int, set<Migration>> Migrator::p_senderMigrations;
-map<int, set<int>> Migrator::p_receiverMigrations;
-
 static map<Migration::Type, string> type_to_string = {
     { Migration::Type::Random, "Random" },
     { Migration::Type::Best, "Best" },
