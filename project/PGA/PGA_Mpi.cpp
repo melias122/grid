@@ -1,68 +1,175 @@
 #include "main.h"
 
 #include "MpiApp.h"
+#include "PGA.h"
 
-vector<vector<Operation>> op1 = {
-    {
-        Operation(new SelectElitism(5), new GeneticOperation),
-        // Operation(...) moze byt nahradene { ... }
-        { new SelectElitism(3), new GeneticOperation },
-    },
-    { { new SelectElitism(1), new GeneticOperationMutationSwap(2) } },
-    { { new SelectTournament(15), new GeneticOperation } }
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/string.hpp>
+#include <fstream>
+#include <string>
+
+unordered_map<char, topology_func *> _topology = {
+    { 'b', &grid },
+    { 'd', &ring },
+    { 'e', &tree },
+    { 'f', &tree2 },
 };
+
+unordered_map<char, schema_func *> _schema = {
+    { 'C', &schemaC },
+    { 'E', &schemaE },
+    { 'J', &schemaJ },
+};
+
+bool readFile(string path, string &content)
+{
+    ifstream ifs(path);
+    if (!ifs.is_open()) {
+        cerr << "could not open file: " + path << endl;
+        return false;
+    }
+    content.assign(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>());
+    ifs.close();
+    return true;
+}
+
+void run(const mpi::communicator &comm, string dir)
+{
+    string ptx;
+    ShuffleGenerator generator(alphabet);
+    Fitness *fitness = L1DistanceBigrams::fromFile(dir + "fitness/2.csv");
+
+    // dlzka textu
+    for (int textSize = 50; textSize <= 2000; textSize += 50) {
+
+        // pocet textov pre dlzku
+        for (int text = 1; text <= 100; text++) {
+
+            string ct, pt;
+
+            // nacitaj ciphertext
+            // ...
+            // a zaroven aj plaintext pre porovnanie
+
+            string path = dir + "ct/" + to_string(textSize) + "_" + to_string(text) + ".txt";
+            if (!readFile(path, ct)) {
+                continue;
+            }
+
+            path = dir + "pt/" + to_string(textSize) + "_" + to_string(text) + ".txt";
+            if (!readFile(path, pt)) {
+                continue;
+            }
+
+            Monoalphabetic cipher(ct);
+
+            // velkost populacie
+            for (int popsize : { 10, 20, 50, 100 }) {
+
+                // operacie
+                for (const auto &schemaId : { 'C', 'E', 'J' }) {
+
+                    // topologia
+                    for (const auto &topologyId : { 'b', 'd', 'e', 'f' }) {
+
+                        // migracny cas
+                        for (auto migrationTime : { 1000, 5000, 10000 }) {
+
+                            MpiMigrator migrator(migrationTime);
+
+                            bool ok = _topology[topologyId](migrator, comm.size());
+                            if (!ok) {
+                                continue;
+                            }
+
+                            // vytvor schemu
+                            Scheme scheme(50000, popsize, &generator, &cipher, fitness, &migrator);
+
+                            // pridaj operacie
+                            scheme.replaceOperations(_schema[schemaId](popsize));
+
+                            // pred spustenim genetickeho algoritmu pockaj
+                            // na vsetky ostatetne ostrovy
+                            comm.barrier();
+
+                            // spusti geneticky algoritmus
+                            Population pop = GeneticAlgorithm::run(comm.rank(), scheme);
+
+                            if (comm.rank() == 0) {
+
+                                // zozbieranie vysledkov na vyhodnotenie
+                                switch (topologyId) {
+                                case 'e':
+                                case 'f':
+                                    break;
+                                default:
+                                    for (int i = 0; i < comm.size() - 1; i++) {
+                                        Population others;
+                                        comm.recv<Population>(mpi::any_source, 0, others);
+                                        append(pop, others);
+                                    }
+                                    break;
+                                }
+
+                                // vyber najlepsieho
+                                sort(pop.begin(), pop.end(), Chromosome::byBestScore());
+
+                                // desifruj ct
+                                cipher.decrypt(pop[0].genes(), ptx);
+
+                                // match rate s pt (% kolko znakov sa zhoduje)
+                                int match = 0;
+                                for (int i = 0; i < ptx.size(); i++) {
+                                    if (ptx[i] == pt[i]) {
+                                        match++;
+                                    }
+                                }
+
+                                // textsize  match  popsize schemaId topologyId migrationTime
+                                // 50         41     10     J        e          1000
+                                println(ct.size()
+                                    << " " << match
+                                    << " " << popsize
+                                    << " " << schemaId
+                                    << " " << topologyId
+                                    << " " << migrationTime);
+
+                            } else {
+
+                                // v pripade stromovej struktury sa vyhodnocuje iba vrchol stromu
+                                // inak sa posielaju data na vyhodnotenie do uzla 0
+                                switch (topologyId) {
+                                case 'e':
+                                case 'f':
+                                    break;
+                                default:
+                                    comm.send<Population>(0, 0, pop);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 int main(int argc, char **argv)
 {
-    // odstranenie argumentov 'mpirun -n 4' ./pga ...
     MpiApp app(argc, argv);
 
-    if (app.size() != 4) {
-        println("test/PGA: failed, want only 4 nodes");
+    if (app.size() < 3) {
+        printf("we need at least 3 nodes");
         return 1;
     }
 
-    // cesta k sifrovanemu textu a k udajom do fitness funkcie
-    if (argc != 3) {
-        println("usage: " << argv[0] << " ciphertext.txt fitness.csv");
-        return 1;
+    string dir("../project/PGA/input/");
+    if (argc == 2) {
+        dir = argv[1];
     }
 
-    // vytvorenie migracnej schemy
-    Migrator *migrator = new MpiMigrator(3000);
-    migrator->addMigration(1, 0, Migration::Type::Best, 5);
-    migrator->addMigration(2, 0, Migration::Type::Random, 15);
-    migrator->addMigration(3, 0, Migration::Type::Tournament, 7);
-
-    if (app.rank() == 0) {
-        //        migrator->printMigrations();
-    }
-
-    // vyber lustenej sifry, cesta k zasifrovanemu textu sa nacita
-    // ako prvy argument programu
-    Cipher *cipher = Monoalphabetic::fromFile(argv[1]);
-
-    // vyber fitness funkcie
-    Fitness *fitness = L1DistanceBigrams::fromFile(argv[2]);
-
-    // vytvorenie schemy genetickeho algroritmu
-    Scheme scheme(10000, 80, new ShuffleGenerator(alphabet), cipher, fitness, migrator);
-    auto &suboperations = scheme.addOperations(new SelectElitism(5), new GeneticOperation);
-    suboperations.emplace_back(new SelectElitism(3), new GeneticOperation);
-    scheme.addOperations(new SelectElitism(1), new GeneticOperationMutationSwap(2));
-    scheme.addOperations(new SelectTournament(15), new GeneticOperation);
-
-    // rovnaku schemu by sme vytvorili
-    // scheme.replaceOperations(op1);
-
-    DBG_LOG("starting node: " << app.rank());
-    Population pop = GeneticAlgorithm::run(app.rank(), scheme);
-
-    if (app.rank() == 0) {
-        string pt;
-        cipher->decrypt(pop[0].genes(), pt);
-        println("GA node " << app.rank() << " decrypted: " << pt);
-    }
+    run(app.communicator(), dir);
 
     return 0;
 }
