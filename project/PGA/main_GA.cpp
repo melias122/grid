@@ -143,6 +143,19 @@ void run_worker(int id, const mpi::communicator &comm, string dir)
     ShuffleGenerator generator(alphabet);
     Fitness *fitness = L1DistanceBigrams::fromFile(dir + "fitness/2.csv");
 
+    unordered_map<string, schema_func *> operationSchema = {
+        { "A", &schemaA },
+        { "B", &schemaB },
+        { "C", &schemaC },
+        { "D", &schemaD },
+        { "E", &schemaE },
+        { "F", &schemaF },
+        { "G", &schemaG },
+        { "H", &schemaH },
+        { "I", &schemaI },
+        { "J", &schemaJ },
+    };
+
     while (1) {
 
         Data data(id);
