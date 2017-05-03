@@ -33,7 +33,7 @@ bool readFile(string path, string &content)
     return true;
 }
 
-void run(const mpi::communicator &comm, string dir)
+void run(const mpi::communicator &comm, string dir, char topologyId)
 {
     string ptx;
     ShuffleGenerator generator(alphabet);
@@ -70,91 +70,93 @@ void run(const mpi::communicator &comm, string dir)
                 for (const auto &schemaId : { 'C', 'E', 'J' }) {
 
                     // topologia
-                    for (const auto &topologyId : { 'b', 'd', 'e', 'f' }) {
+                    //                    for (const auto &topologyId : { 'b', 'd', 'e', 'f' }) {
 
-                        // migracny cas
-                        for (auto migrationTime : { 1000, 5000, 10000 }) {
+                    // migracny cas
+                    for (auto migrationTime : { 1000, 5000, 10000 }) {
 
-                            MpiMigrator migrator(migrationTime);
+                        MpiMigrator migrator(migrationTime);
 
-                            bool ok = _topology[topologyId](migrator, comm.size());
-                            if (!ok) {
-                                continue;
+                        bool ok = _topology[topologyId](migrator, comm.size());
+                        if (!ok) {
+                            continue;
+                        }
+
+                        // vytvor schemu
+                        Scheme scheme(50000, popsize, &generator, &cipher, fitness, &migrator);
+
+                        // pridaj operacie
+                        scheme.replaceOperations(_schema[schemaId](popsize));
+
+                        // pred spustenim genetickeho algoritmu pockaj
+                        // na vsetky ostatetne ostrovy
+                        comm.barrier();
+
+                        // spusti geneticky algoritmus
+                        Population pop = GeneticAlgorithm::run(comm.rank(), scheme);
+
+                        if (comm.rank() == 0) {
+
+                            // zozbieranie vysledkov na vyhodnotenie
+                            switch (topologyId) {
+                            case 'e':
+                            case 'f':
+                                break;
+                            default:
+                                for (int i = 0; i < comm.size() - 1; i++) {
+                                    Population others;
+                                    comm.recv<Population>(mpi::any_source, 0, others);
+                                    append(pop, others);
+                                }
+                                break;
                             }
 
-                            // vytvor schemu
-                            Scheme scheme(50000, popsize, &generator, &cipher, fitness, &migrator);
+                            // vyber najlepsieho
+                            sort(pop.begin(), pop.end(), Chromosome::byBestScore());
 
-                            // pridaj operacie
-                            scheme.replaceOperations(_schema[schemaId](popsize));
+                            // desifruj ct
+                            cipher.decrypt(pop[0].genes(), ptx);
 
-                            // pred spustenim genetickeho algoritmu pockaj
-                            // na vsetky ostatetne ostrovy
-                            comm.barrier();
-
-                            // spusti geneticky algoritmus
-                            Population pop = GeneticAlgorithm::run(comm.rank(), scheme);
-
-                            if (comm.rank() == 0) {
-
-                                // zozbieranie vysledkov na vyhodnotenie
-                                switch (topologyId) {
-                                case 'e':
-                                case 'f':
-                                    break;
-                                default:
-                                    for (int i = 0; i < comm.size() - 1; i++) {
-                                        Population others;
-                                        comm.recv<Population>(mpi::any_source, 0, others);
-                                        append(pop, others);
-                                    }
-                                    break;
+                            // match rate s pt (% kolko znakov sa zhoduje)
+                            int match = 0;
+                            for (int i = 0; i < ptx.size(); i++) {
+                                if (ptx[i] == pt[i]) {
+                                    match++;
                                 }
+                            }
 
-                                // vyber najlepsieho
-                                sort(pop.begin(), pop.end(), Chromosome::byBestScore());
+                            // textsize  match  popsize schemaId topologyId migrationTime
+                            // 50         41     10     J        e          1000
+                            println(ct.size()
+                                << " " << match
+                                << " " << popsize
+                                << " " << schemaId
+                                << " " << topologyId
+                                << " " << migrationTime);
 
-                                // desifruj ct
-                                cipher.decrypt(pop[0].genes(), ptx);
+                        } else {
 
-                                // match rate s pt (% kolko znakov sa zhoduje)
-                                int match = 0;
-                                for (int i = 0; i < ptx.size(); i++) {
-                                    if (ptx[i] == pt[i]) {
-                                        match++;
-                                    }
-                                }
-
-                                // textsize  match  popsize schemaId topologyId migrationTime
-                                // 50         41     10     J        e          1000
-                                println(ct.size()
-                                    << " " << match
-                                    << " " << popsize
-                                    << " " << schemaId
-                                    << " " << topologyId
-                                    << " " << migrationTime);
-
-                            } else {
-
-                                // v pripade stromovej struktury sa vyhodnocuje iba vrchol stromu
-                                // inak sa posielaju data na vyhodnotenie do uzla 0
-                                switch (topologyId) {
-                                case 'e':
-                                case 'f':
-                                    break;
-                                default:
-                                    comm.send<Population>(0, 0, pop);
-                                    break;
-                                }
+                            // v pripade stromovej struktury sa vyhodnocuje iba vrchol stromu
+                            // inak sa posielaju data na vyhodnotenie do uzla 0
+                            switch (topologyId) {
+                            case 'e':
+                            case 'f':
+                                break;
+                            default:
+                                comm.send<Population>(0, 0, pop);
+                                break;
                             }
                         }
                     }
+                    //                    }
                 }
             }
         }
     }
 }
 
+// 'b', 'd', 'e', 'f'
+// ./app b dir/
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);
@@ -165,11 +167,11 @@ int main(int argc, char **argv)
     }
 
     string dir("../project/PGA/input/");
-    if (argc == 2) {
-        dir = argv[1];
+    if (argc == 3) {
+        dir = argv[2];
     }
 
-    run(app.communicator(), dir);
+    run(app.communicator(), dir, *argv[1]);
 
     return 0;
 }
