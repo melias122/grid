@@ -4,7 +4,7 @@ app=PGA_Mpi
 workdir=/work/$USER/PGA
 
 mkdir -p $workdir
-cp bin/$app $workdir
+cp -v bin/$app $workdir
 
 for i in 3 5 11; do
     for j in b d e f; do
@@ -27,20 +27,17 @@ for i in 3 5 11; do
 #PBS -l nodes=1:ppn=$((i + 1)),walltime=120:00:00
 #PBS -m ea
 
-application="./$app $j input/"
-
 . /etc/profile.d/modules.sh
 module purge
 module load gcc/5.4 mvapich2/2.2
 
-CMD="mpirun $application 1>${jobname}.stdout 2>${jobname}.stderr"
+CMD="mpirun ./$app $j input/ 1>${jobname}.stdout 2>${jobname}.stderr"
 
-# prechod do priečinka odkiaľ bola spustená úloha
+# prechod do pracovneho priečinka
 cd $workdir
-# echo -e "Changed directory to \$(pwd)"
 
 # spustenie ulohy
-eval $CMD
+eval \$CMD
 EOF
 	qsub $file
 	rm $file
