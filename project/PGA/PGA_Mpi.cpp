@@ -77,7 +77,7 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
 
                         MpiMigrator migrator(migrationTime);
 
-                        bool ok = _topology[topologyId](migrator, comm.size());
+                        bool ok = _topology[topologyId](migrator, comm.size() - 1);
                         if (!ok) {
                             continue;
                         }
@@ -87,10 +87,6 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
 
                         // pridaj operacie
                         scheme.replaceOperations(_schema[schemaId](popsize));
-
-                        // pred spustenim genetickeho algoritmu pockaj
-                        // na vsetky ostatetne ostrovy
-                        comm.barrier();
 
                         // spusti geneticky algoritmus
                         Population pop = GeneticAlgorithm::run(comm.rank(), scheme);
@@ -103,7 +99,7 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
                             case 'f':
                                 break;
                             default:
-                                for (int i = 0; i < comm.size() - 1; i++) {
+                                for (int i = 0; i < comm.size() - 2; i++) {
                                     Population others;
                                     comm.recv<Population>(mpi::any_source, 0, others);
                                     append(pop, others);
@@ -156,7 +152,7 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
 }
 
 // 'b', 'd', 'e', 'f'
-// ./app b dir/
+// ./app [num_nodes] [topology] [dir/]
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);
@@ -169,6 +165,10 @@ int main(int argc, char **argv)
     string dir("../project/PGA/input/");
     if (argc == 3) {
         dir = argv[2];
+    }
+
+    if (app.rank() == app.size() - 1) {
+        return 0;
     }
 
     run(app.communicator(), dir, *argv[1]);
