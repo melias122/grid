@@ -1,28 +1,15 @@
-add_executable(PGA_Mpi PGA_Mpi.cpp)
+# PGA program
+add_executable(pga PGA.cpp)
 
-target_link_libraries(
-    PGA_Mpi
+target_link_libraries(pga grid PGA)
+install(TARGETS pga DESTINATION ${PROJECT_SOURCE_DIR}/project/PGA)
 
-    PGA
-    grid
-)
+# GA program
+add_executable(ga GA.cpp main.h)
+install(TARGETS ga DESTINATION ${PROJECT_SOURCE_DIR}/project/PGA)
 
-add_executable(PGA_single PGA_single.cpp)
+target_link_libraries(ga grid PGA)
 
-target_link_libraries(
-    PGA_single
-
-    PGA
-    grid
-)
-
-add_executable(GA main_GA.cpp main.h)
-
-target_link_libraries(
-    GA
-
-    PGA
-    grid
-)
-
+# stat program for GA, PGA
 add_executable(stat stat.cpp)
+install(TARGETS stat DESTINATION ${PROJECT_SOURCE_DIR}/project/PGA)

@@ -2,5 +2,4 @@
 *.user
 release
 debug
-vendor
 bin

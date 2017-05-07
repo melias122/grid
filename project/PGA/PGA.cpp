@@ -43,7 +43,7 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
     for (int textSize = 50; textSize <= 2000; textSize += 50) {
 
         // pocet textov pre dlzku
-        for (int text = 1; text <= 100; text++) {
+        for (int text = 1; text <= 75; text++) {
 
             string ct, pt;
 
@@ -64,16 +64,16 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
             Monoalphabetic cipher(ct);
 
             // velkost populacie
-            for (int popsize : { 10, 20, 50, 100 }) {
+            for (int popsize : vector<int>{ 10, 20, 50, 100 }) {
 
                 // operacie
-                for (const auto &schemaId : { 'C', 'E', 'J' }) {
+                for (const auto &schemaId : vector<char>{ 'C', 'E', 'J' }) {
 
                     // topologia
                     //                    for (const auto &topologyId : { 'b', 'd', 'e', 'f' }) {
 
                     // migracny cas
-                    for (auto migrationTime : { 1000, 5000, 10000 }) {
+                    for (auto migrationTime : vector<int>{ 100, 500, 1000 }) {
 
                         MpiMigrator migrator(migrationTime);
 
@@ -83,7 +83,7 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
                         }
 
                         // vytvor schemu
-                        Scheme scheme(50000, popsize, &generator, &cipher, fitness, &migrator);
+                        Scheme scheme(10000, popsize, &generator, &cipher, fitness, &migrator);
 
                         // pridaj operacie
                         scheme.replaceOperations(_schema[schemaId](popsize));
@@ -121,9 +121,10 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
                                 }
                             }
 
-                            // textsize  match  popsize schemaId topologyId migrationTime
-                            // 50         41     10     J        e          1000
-                            println(ct.size()
+                            // textsize poradie match  popsize schemaId topologyId migrationTime
+                            // 50       1       41     10      J        e          1000
+                            println(textSize
+                                << " " << text
                                 << " " << match
                                 << " " << popsize
                                 << " " << schemaId
@@ -152,7 +153,7 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
 }
 
 // 'b', 'd', 'e', 'f'
-// ./app [num_nodes] [topology] [dir/]
+// ./app [topology] [dir/]
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);

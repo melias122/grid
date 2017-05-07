@@ -12,3 +12,4 @@ add_executable(FitnessLandscape
 )
 
 target_link_libraries(FitnessLandscape grid)
+install(TARGETS FitnessLandscape DESTINATION ${PROJECT_SOURCE_DIR}/project/FitnessLandscape)
