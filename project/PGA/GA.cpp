@@ -212,11 +212,7 @@ void run_worker(int id, const mpi::communicator &comm, string dir)
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);
-
-    string dir("../project/PGA/input/");
-    if (argc == 2) {
-        dir = argv[1];
-    }
+    string dir("input/");
 
     if (app.rank() == Node::master)
         run_master(app.communicator(), dir);

@@ -153,26 +153,26 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
 }
 
 // 'b', 'd', 'e', 'f'
-// ./app [topology] [dir/]
+// ./app [topology]
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);
 
     if (app.size() < 3) {
-        printf("we need at least 3 nodes");
+        println("we need at least 3 nodes");
         return 1;
     }
 
-    string dir("../project/PGA/input/");
-    if (argc == 3) {
-        dir = argv[2];
+    if (argc != 2) {
+        println("topology was not set");
+        return 1;
     }
 
     if (app.rank() == app.size() - 1) {
         return 0;
     }
 
-    run(app.communicator(), dir, *argv[1]);
+    run(app.communicator(), "input/", *argv[1]);
 
     return 0;
 }
