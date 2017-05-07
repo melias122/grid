@@ -1,9 +1,11 @@
 #!/bin/bash
 
-app=PGA_Mpi
+app=PGA
 workdir=/work/$USER/PGA
 
 mkdir -p $workdir
+ln -s $workdir out
+ls -s input $workdir/input
 cp -v bin/$app $workdir
 
 for i in 3 5 11; do
@@ -24,20 +26,22 @@ for i in 3 5 11; do
 #PBS -A 3ANTAL-2016
 #PBS -q parallel
 #PBS -M xelias@stuba.sk
-#PBS -l nodes=1:ppn=$((i + 1)),walltime=120:00:00
+#PBS -l nodes=1:ppn=$((i + 1))
+#PBS -l walltime=120:00:00
 #PBS -m ea
 
 . /etc/profile.d/modules.sh
 module purge
 module load gcc/5.4 mvapich2/2.2
 
-CMD="mpirun ./$app $j input/ 1>${jobname}.stdout 2>${jobname}.stderr"
+CMD="mpirun ./$app $j 1>${jobname}.stdout 2>${jobname}.stderr"
 
 # prechod do pracovneho priečinka
 cd $workdir
 
 # spustenie ulohy
 eval \$CMD
+rm ./$app
 EOF
 	qsub $file
 	rm $file
