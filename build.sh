@@ -42,6 +42,7 @@ int main(int argc, char **argv)
 }
 EOF
 
+    echo "add_subdirectory($project_name)" >> project/CMakeLists.txt
     cat << EOF > $project_dir/CMakeLists.txt
 add_executable($project_name
     main.cpp
@@ -78,7 +79,9 @@ cd $project_dir
 eval \$CMD
 EOF
 
-    echo "add_subdirectory($project_name)" >> project/CMakeLists.txt
+    cat << EOF > $project_dir/.gitignore
+$project_name
+EOF
 }
 
 clang_format_all() {
