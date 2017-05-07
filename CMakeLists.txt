@@ -5,8 +5,6 @@ project(grid CXX)
 set(CMAKE_CXX_COMPILER mpic++)
 set(CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-
 find_package(MPI REQUIRED)
 if(NOT MPI_FOUND)
 	message(FATAL_ERROR "Package MPI not found")
