@@ -4,6 +4,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
+#include <lru/cache.hpp>
 #include <string>
 #include <vector>
 
@@ -11,7 +12,7 @@ class Cipher;
 class Fitness;
 class Generator;
 
-using Genes = std::vector<int>;
+using Genes = std::string;
 std::ostream &operator<<(std::ostream &os, const Genes &p);
 std::string to_string(const Genes &g);
 
@@ -27,7 +28,7 @@ public:
     Chromosome(Generator *generator, Cipher *cipher, Fitness *fitness);
 
     double score() const { return m_score; }
-    void calculateScore(Cipher *cipher, Fitness *fitness);
+    void calculateScore(Cipher *cipher, Fitness *fitness, LRU::Cache<Genes, double> *cache = nullptr);
     int size() const { return m_genes.size(); }
     Genes &genes() { return m_genes; }
 
@@ -61,13 +62,13 @@ void append(Population &p0, const Population &p1);
 class Generator
 {
 public:
-    Generator(const Genes &genes)
-        : genes{ genes }
-    {
-    }
+    //    Generator(const Genes &genes)
+    //        : genes{ genes }
+    //    {
+    //    }
 
     Generator(const std::string &alphabet)
-        : genes(alphabet.begin(), alphabet.end())
+        : genes(alphabet)
     {
     }
 

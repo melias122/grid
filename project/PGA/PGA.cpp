@@ -37,53 +37,57 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
 {
     string ptx;
     ShuffleGenerator generator(alphabet);
-    Fitness *fitness = L1DistanceBigrams::fromFile(dir + "fitness/2.csv");
+    L1DistanceBigrams *fitness = L1DistanceBigrams::fromFile(dir + "fitness/2.csv");
 
-    // dlzka textu
-    for (int textSize = 50; textSize <= 2000; textSize += 50) {
+    // operacie
+    for (const auto &schemaId : vector<char>{ 'J', 'C', 'E' }) {
 
-        // pocet textov pre dlzku
-        for (int text = 1; text <= 75; text++) {
+        // velkost populacie
+        for (int popsize : vector<int>{ 10, 20, 50, 100 }) {
 
-            string ct, pt;
+            // pocet textov pre dlzku
+            for (int text = 1; text <= 75; text++) {
 
-            // nacitaj ciphertext
-            // ...
-            // a zaroven aj plaintext pre porovnanie
+                // dlzka textu
+                for (int textSize = 50; textSize <= 2000; textSize += 50) {
 
-            string path = dir + "ct/" + to_string(textSize) + "_" + to_string(text) + ".txt";
-            if (!readFile(path, ct)) {
-                continue;
-            }
+                    string ct, pt;
 
-            path = dir + "pt/" + to_string(textSize) + "_" + to_string(text) + ".txt";
-            if (!readFile(path, pt)) {
-                continue;
-            }
+                    // nacitaj ciphertext
+                    // ...
+                    // a zaroven aj plaintext pre porovnanie
 
-            Monoalphabetic cipher(ct);
+                    string path = dir + "ct/" + to_string(textSize) + "_" + to_string(text) + ".txt";
+                    if (!readFile(path, ct)) {
+                        continue;
+                    }
 
-            // velkost populacie
-            for (int popsize : vector<int>{ 10, 20, 50, 100 }) {
+                    path = dir + "pt/" + to_string(textSize) + "_" + to_string(text) + ".txt";
+                    if (!readFile(path, pt)) {
+                        continue;
+                    }
 
-                // operacie
-                for (const auto &schemaId : vector<char>{ 'C', 'E', 'J' }) {
+                    Monoalphabetic cipher(ct);
+
+                    LRU::Cache<Genes, double> cache(32768 * 2);
 
                     // topologia
                     //                    for (const auto &topologyId : { 'b', 'd', 'e', 'f' }) {
 
                     // migracny cas
-                    for (auto migrationTime : vector<int>{ 100, 500, 1000 }) {
+                    for (auto migrationTime : vector<int>{ 1000, 5000, 10000 }) {
 
                         MpiMigrator migrator(migrationTime);
 
                         bool ok = _topology[topologyId](migrator, comm.size() - 1);
                         if (!ok) {
+                            cerr << "error: topology" << endl;
                             continue;
                         }
 
                         // vytvor schemu
-                        Scheme scheme(10000, popsize, &generator, &cipher, fitness, &migrator);
+                        Scheme scheme(30000, popsize, &generator, &cipher, fitness, &migrator);
+                        scheme.cache = &cache;
 
                         // pridaj operacie
                         scheme.replaceOperations(_schema[schemaId](popsize));
@@ -145,7 +149,6 @@ void run(const mpi::communicator &comm, string dir, char topologyId)
                             }
                         }
                     }
-                    //                    }
                 }
             }
         }

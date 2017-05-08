@@ -24,6 +24,7 @@ endif()
 include_directories(
 	${Boost_INCLUDE_DIR}
 	${MPI_INCLUDE_PATH}
+	vendor/lru-cache/include
 	src
 	src/PGA
 )

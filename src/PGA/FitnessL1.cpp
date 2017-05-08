@@ -77,8 +77,17 @@ L1DistanceBigrams *L1DistanceBigrams::fromFile(string path)
     return new L1DistanceBigrams(bigrams);
 }
 
+void L1DistanceBigrams::setCache(LRU::Cache<string, double> *cache)
+{
+    m_cache = cache;
+}
+
 double L1DistanceBigrams::evaluate(const string &pt)
 {
+    if (m_cache && m_cache->contains(pt)) {
+        return m_cache->lookup(pt);
+    }
+
     double m[26][26] = { 0 };
     double sum = 0, div = pt.size() - 1;
 
@@ -91,8 +100,12 @@ double L1DistanceBigrams::evaluate(const string &pt)
             sum += fabs(m_bigrams[i][j] - (m[i][j] / div));
         }
     }
+    sum = -sum;
+    if (m_cache) {
+        m_cache->emplace(pt, sum);
+    }
 
-    return -sum;
+    return sum;
 }
 
 L1DistanceTrigrams::L1DistanceTrigrams(const vector<vector<vector<double>>> &referenceTrigrams)

@@ -26,7 +26,7 @@ Population GeneticAlgorithm::run(int id, const Scheme &scheme)
                 op.geneticOperation->apply(subpop);
 
                 for (Chromosome &c : subpop) {
-                    c.calculateScore(scheme.cipher, scheme.fitness);
+                    c.calculateScore(scheme.cipher, scheme.fitness, scheme.cache);
                 }
             }
             append(newpop, subpop);

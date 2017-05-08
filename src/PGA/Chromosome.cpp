@@ -24,11 +24,24 @@ Chromosome::Chromosome(Generator *generator, Cipher *cipher, Fitness *fitness)
     calculateScore(cipher, fitness);
 }
 
-void Chromosome::calculateScore(Cipher *cipher, Fitness *fitness)
+void Chromosome::calculateScore(Cipher *cipher, Fitness *fitness, LRU::Cache<Genes, double> *cache)
 {
-    std::string plaintext;
-    cipher->decrypt(m_genes, plaintext);
-    m_score = fitness->evaluate(plaintext);
+    if (cache) {
+        if (cache->contains(m_genes)) {
+            m_score = cache->lookup(m_genes);
+            return;
+        }
+
+        std::string plaintext;
+        cipher->decrypt(m_genes, plaintext);
+        m_score = fitness->evaluate(plaintext);
+
+        cache->insert(m_genes, m_score);
+    } else {
+        std::string plaintext;
+        cipher->decrypt(m_genes, plaintext);
+        m_score = fitness->evaluate(plaintext);
+    }
 }
 
 std::ostream &operator<<(std::ostream &os, const Chromosome &c)

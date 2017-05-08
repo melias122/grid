@@ -3,6 +3,7 @@
 
 #include "Fitness.h"
 
+#include <lru/lru.hpp>
 #include <vector>
 
 class L1DistanceMonograms : public Fitness
@@ -22,10 +23,12 @@ class L1DistanceBigrams : public Fitness
 public:
     L1DistanceBigrams(const std::vector<std::vector<double>> &referenceBigrams);
     static L1DistanceBigrams *fromFile(std::string path);
+    void setCache(LRU::Cache<std::string, double> *cache);
 
     double evaluate(const std::string &plaintext) override;
 
 private:
+    LRU::Cache<std::string, double> *m_cache = nullptr;
     std::vector<std::vector<double>> m_bigrams;
 };
 

@@ -57,6 +57,7 @@ struct Scheme {
     Cipher *cipher;
     Fitness *fitness;
     Migrator *migrator;
+    LRU::Cache<Genes, double> *cache{ nullptr };
 
     std::vector<std::vector<Operation>> operations;
 };
