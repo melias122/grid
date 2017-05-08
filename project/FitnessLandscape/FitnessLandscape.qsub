@@ -1,0 +1,21 @@
+#!/bin/bash 
+
+#PBS -N FitnessLandscape
+#PBS -A 3ANTAL-2016
+#PBS -q parallel
+#PBS -l nodes=8:ppn=12
+#PBS -l walltime=200:00:00
+
+#PBS -M xelias@stuba.sk
+#PBS -m ea
+
+. /etc/profile.d/modules.sh
+module purge
+module load gcc/5.4 mvapich2/2.2
+
+application="./FitnessLandscape input/bigrams.csv input/trigrams.csv input/ct/ input/pt/"
+CMD="mpirun $application 1>stdout"
+
+cd $PBS_O_WORKDIR
+
+eval $CMD
