@@ -1,14 +1,14 @@
 add_executable(FitnessLandscape
-    EuklidBigramy.cpp
-    EuklidTrigramy.cpp
-    FitnessFunctionss.cpp
-    FitnessLandscape.cpp
-    main.cpp
-    ManhattanBigramy.cpp
-    ManhattanTrigramy.cpp
-    PocetTrigramy.cpp
-    PracaSoSubormi.cpp
-    Statistika.cpp
+    src/EuklidBigramy.cpp
+    src/EuklidTrigramy.cpp
+    src/FitnessFunctionss.cpp
+    src/FitnessLandscape.cpp
+    src/main.cpp
+    src/ManhattanBigramy.cpp
+    src/ManhattanTrigramy.cpp
+    src/PocetTrigramy.cpp
+    src/PracaSoSubormi.cpp
+    src/Statistika.cpp
 )
 
 target_link_libraries(FitnessLandscape grid)
