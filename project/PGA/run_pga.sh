@@ -1,13 +1,5 @@
 #!/bin/bash
 
-app=PGA
-workdir=/work/$USER/PGA
-
-mkdir -p $workdir
-ln -s $workdir out
-ls -s input $workdir/input
-cp -v bin/$app $workdir
-
 for i in 3 5 11; do
     for j in b d e f; do
 
@@ -16,34 +8,34 @@ for i in 3 5 11; do
 	    continue
 	fi
 
-	file=$workdir/run_${i}_${j}
-	jobname=${app}_${i}_${j}
+	file=pga_${i}_${j}.qsub
+	jobname=pga_${i}_${j}
 
-	cat<<EOF > $file
+	cat << EOF > $file
 #!/bin/bash
 
 #PBS -N $jobname
 #PBS -A 3ANTAL-2016
 #PBS -q parallel
-#PBS -M xelias@stuba.sk
 #PBS -l nodes=1:ppn=$((i + 1))
-#PBS -l walltime=120:00:00
+#PBS -l walltime=200:00:00
+
+#PBS -M xelias@stuba.sk
 #PBS -m ea
 
 . /etc/profile.d/modules.sh
 module purge
 module load gcc/5.4 mvapich2/2.2
 
-CMD="mpirun ./$app $j 1>${jobname}.stdout 2>${jobname}.stderr"
+CMD="mpirun ./pga $j 1>${jobname}.stdout"
 
 # prechod do pracovneho priečinka
-cd $workdir
+cd \$PBS_O_WORKDIR
 
 # spustenie ulohy
 eval \$CMD
-rm ./$app
 EOF
-	qsub $file
+	qsub -d $(pwd) $file
 	rm $file
     done
 done
