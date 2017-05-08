@@ -7,6 +7,10 @@ BUILD_DIR=.build
 BUILD=RelWithDebInfo  # Debug, Release, RelWithDebInfo
 MODULES="cmake/3.1.0 gcc/5.4 mvapich2/2.2"
 
+# TODO: config file?
+# every user should change this
+PROJECT_ID=3ANTAL-2016
+
 build_boost() {
     if [ ! -f vendor/.boost.lock ]; then
 	scripts/build_boost.sh
@@ -66,7 +70,7 @@ EOF
 #!/bin/bash
 
 #PBS -N $name
-#PBS -A 3ANTAL-2016
+#PBS -A $PROJECT_ID
 #PBS -q parallel
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=240:00:00
