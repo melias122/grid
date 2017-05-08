@@ -15,18 +15,23 @@ build_boost() {
 
 create_project() {
 
-    project_name=$1
-    project_dir=project/$project_name
+    name=$(basename $1)
+    dir=project/$name
+    src=$dir/src
 
     # exit if project exists
-    if [ -d $project_dir ]; then
-	echo "$project_dir already exists"
+    if [ -d $dir ]; then
+	echo "$dir already exists"
 	exit 1
     fi
 
-    mkdir -pv $project_dir
+    echo "creating new project $name"
 
-    cat << EOF > $project_dir/main.cpp
+    # create project and src directories
+    mkdir -p $src
+
+    # create main.cpp
+    cat << EOF > $src/main.cpp
 #include <iostream>
 
 #include "MpiApp.h"
@@ -42,46 +47,76 @@ int main(int argc, char **argv)
 }
 EOF
 
-    echo "add_subdirectory($project_name)" >> project/CMakeLists.txt
-    cat << EOF > $project_dir/CMakeLists.txt
-add_executable($project_name
-    main.cpp
+    # register project
+    echo "add_subdirectory($name)" >> project/CMakeLists.txt
+
+    # crate project CMakeLists
+    cat << EOF > $dir/CMakeLists.txt
+add_executable($name
+    src/main.cpp
 
     # add additional .cpp files here
 )
 
-target_link_libraries($project_name grid)
-install(TARGETS $project_name DESTINATION \${PROJECT_SOURCE_DIR}/$project_dir)
+target_link_libraries($name grid)
+install(TARGETS $name DESTINATION \${PROJECT_SOURCE_DIR}/$dir)
 EOF
 
-    cat << EOF > $project_dir/${project_name}.pbs
+    cat << EOF > $dir/${name}.pbs
 #!/bin/bash
 
-#PBS -N $project_name
+#PBS -N $name
 #PBS -A 3ANTAL-2016
 #PBS -q parallel
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=240:00:00
 
-#PBS -M xelias@stuba.sk
-#PBS -m ea
-
 . /etc/profile.d/modules.sh
 module purge
 module load $MODULES
 
-CMD="mpirun ./$project_name"
+CMD="mpirun ./$name"
 
-# prechod do pracovneho priečinka
-cd $project_dir
+# prechod do priečinka s programom (project/$name)
+cd \$PBS_O_WORKDIR
 
 # spustenie ulohy
 eval \$CMD
 EOF
 
-    cat << EOF > $project_dir/.gitignore
-$project_name
+    # add binary file to .gitignore
+    cat << EOF > $dir/.gitignore
+$name
 EOF
+}
+
+run_project() {
+
+    # project we want to run
+    name=$(basename $1)
+    rpath=project/$name
+    apath=$(pwd)/$rpath
+
+    if [ ! -d $rpath ]; then
+	echo "$rpath does not exist (are you in project root directory?)"
+	exit 1
+    fi
+
+    # if we are on hpc.stuba.sk
+    if hash qsub 2>/dev/null; then
+	qsub -d $apath $rpath/${name}.qsub
+	echo "$name added to queue (check with: qstat -u $USER)"
+    else
+	# TODO:
+	# try parse .qsub file for number of procesors ($numproc)
+	# run something like:
+	# check if mpirun exists
+	# pushd $rpath
+	# mpirun -n $numproc ./$name &
+	# popd
+	echo "cannot run $name localy"
+	exit 1
+    fi
 }
 
 clang_format_all() {
@@ -110,10 +145,10 @@ build() {
 }
 
 usage() {
-	echo "Usage: $0 [-b|--build] [-h|--help] [-r|--run bin/project_name] [-n|--new-project]"
+	echo "Usage: $0 [-b|--build] [-h|--help] [-r|--run project_name] [-n|--new-project]"
 	echo "   -b|--build:       builds whole project and binaries"
 	echo "   -h|--help:        prints this help"
-	echo "   -r|--run:         runs executable"
+	echo "   -r|--run:         adds project to queue (path must be relative and from root of this project)"
 	echo "   -n|--new-project: creates new project from template"
 	exit 1
 }
@@ -129,7 +164,7 @@ while true; do
 	case "$1" in
 		-h | --help ) usage ;;
 		-b | --build ) build $BUILD; shift ;;
-		-r | --run ) echo todo ; shift ;;
+		-r | --run ) run_project $2 ; shift ;;
 		-n | --new-project ) create_project $2 ; shift ;;
 		-- ) shift; break ;;
 		* ) break ;;
