@@ -7,9 +7,11 @@ BUILD_DIR=.build
 BUILD=RelWithDebInfo  # Debug, Release, RelWithDebInfo
 MODULES="cmake/3.1.0 gcc/5.4 mvapich2/2.2"
 
-# TODO: config file?
-# every user should change this
-PROJECT_ID=3ANTAL-2016
+# every project needs id
+if [ ! -s .project-id ]; then
+    echo "please create .project-id. Run \"echo your-project-id > .project-id\""
+    exit 1
+fi
 
 build_boost() {
     if [ ! -f vendor/.boost.lock ]; then
@@ -40,13 +42,18 @@ create_project() {
 
 #include "MpiApp.h"
 
+// nodes defines number of nodes to use
+// ppn defines number of proccesors to use
+// total cores = nodes * ppn
+#define nodes 1
+#define ppn 1
+
 using namespace std;
 
 int main(int argc, char **argv)
 {
-    // MpiApp app(argc, argv);
-    // const mpi::communicator &comm = app.communicator();
-
+    MpiApp app(argc, argv);
+    cout << "Hello, grid" << endl;
     return 0;
 }
 EOF
@@ -70,7 +77,7 @@ EOF
 #!/bin/bash
 
 #PBS -N $name
-#PBS -A $PROJECT_ID
+#PBS -A $(cat .project-id)
 #PBS -q parallel
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=240:00:00
@@ -100,26 +107,59 @@ run_project() {
     name=$(basename $1)
     rpath=project/$name
     apath=$(pwd)/$rpath
+    pbsf=$rpath/${name}.pbs
+    main=$rpath/src/main.cpp
+    isnum='^[0-9]+$'
 
     if [ ! -d $rpath ]; then
 	echo "$rpath does not exist (are you in project root directory?)"
 	exit 1
     fi
 
+    if ! type $rpath/$name 2>/dev/null 1>/dev/null; then
+	echo "$rpath/$name does not exist (did you run ./build.sh -b?)"
+	exit 1
+    fi
+
+    if [ ! -f $pbsf ]; then
+	echo "$pbsf does not exist"
+	exit 1
+    fi
+
+    # check how many nodes and cores are specified by main
+    if [ -f $main ]; then
+	nodes=$(grep "#define nodes" $rpath/src/main.cpp | cut -d' ' -f 3)
+	ppn=$(grep "#define ppn" $rpath/src/main.cpp | cut -d' ' -f 3)
+    fi
+
+    # check if they are realy numbers
+    if ! [[ $nodes =~ $isnum ]]; then
+	echo "please add \"#define Nodes number\" to $main"
+	exit 1
+    fi
+
+    if ! [[ $ppn =~ $isnum ]]; then
+	echo "please add \"#define Procs number\" to $main"
+	exit 1
+    fi
+
+    # replace old nodes and ppn in .pbs
+    old_nodes=$(grep "nodes" $pbsf | cut -d' ' -f3 | cut -d: -f1 | cut -d= -f2)
+    old_ppn=$(grep "ppn" $pbsf | cut -d' ' -f3 | cut -d: -f2 | cut -d= -f2)
+    sed -i 's/nodes=$old_nodes/nodes=$nodes/' $pbsf
+    sed -i 's/ppn=$old_ppn/ppn=$ppn/' $pbsf
+
     # if we are on hpc.stuba.sk
     if hash qsub 2>/dev/null; then
-	qsub -d $apath $rpath/${name}.qsub
-	echo "$name added to queue (check with: qstat -u $USER)"
+        # use current .project-id
+	sed -i 's/^#PBS -A.*/#PBS -A $(cat .project-id)/' $pbsf
+	qsub -d $apath $pbsf
+	echo "project: $name $(cat .project-id) added to queue (check with: qstat -u $USER)"
     else
-	# TODO:
-	# try parse .qsub file for number of procesors ($numproc)
-	# run something like:
-	# check if mpirun exists
-	# pushd $rpath
-	# mpirun -n $numproc ./$name &
-	# popd
-	echo "cannot run $name localy"
-	exit 1
+	# we are running local machine
+	pushd $rpath 1>/dev/null
+	mpirun -n $(( $nodes * $ppn )) ./$name
+	popd 1>/dev/null
     fi
 }
 
