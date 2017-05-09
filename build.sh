@@ -194,6 +194,8 @@ usage() {
 	echo "   -h|--help:        prints this help"
 	echo "   -r|--run:         adds project to queue (path must be relative and from root of this project)"
 	echo "   -n|--new-project: creates new project from template"
+	echo ""
+	echo "Current project is: $(cat .project-id)"
 	exit 1
 }
 
