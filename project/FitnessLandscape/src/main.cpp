@@ -60,7 +60,7 @@ void horolezec(int dlzka_hesla, string sifrovany, string plaintext, vector<Fitne
             }
         }
 
-        nazov.append("heslo" + to_string(dlzka_hesla) + "/"); // directory
+        nazov.append("out/heslo" + to_string(dlzka_hesla) + "/"); // directory
         nazov.append("text");
         nazov.append(to_string(sifrovany.size()));
         nazov.append("_");
@@ -102,11 +102,11 @@ int main(int argc, char **argv)
     subory.nacitajTrigramyTop(argv[2]);
 
     vector<int> dlzky_hesiel;
-    // dlzky_hesiel.push_back(5);
-    // dlzky_hesiel.push_back(10);
+    //dlzky_hesiel.push_back(5);
+    //dlzky_hesiel.push_back(10);
     dlzky_hesiel.push_back(20);
-    //    dlzky_hesiel.push_back(30);
-    //    dlzky_hesiel.push_back(50);
+    //dlzky_hesiel.push_back(30);
+    //dlzky_hesiel.push_back(50);
 
     EuklidBigramy eukBi("euklidBigramy");
     eukBi.bigramy = subory.bigramy;
@@ -120,11 +120,11 @@ int main(int argc, char **argv)
     manTriTop.trigramy = subory.trigramy_top;
 
     vector<FitnessFunctionss *> fitness;
-    //    fitness.push_back(&eukBi);
-    //    fitness.push_back(&eukTri);
-    fitness.push_back(&manBi);
-    fitness.push_back(&manTri);
-    //    fitness.push_back(&manTriTop);
+    fitness.push_back(&eukBi);
+    fitness.push_back(&eukTri);
+    //fitness.push_back(&manBi);
+    //fitness.push_back(&manTri);
+    fitness.push_back(&manTriTop);
 
     if (app.rank() == 0) {
         // master node
@@ -187,9 +187,9 @@ int main(int argc, char **argv)
                     int worker;
 
                     // wait until we have available worker
-                    cout << "M:waiting for worker" << endl;
+                    cerr << "M:waiting for worker" << endl;
                     comm.recv<int>(mpi::any_source, tag_worker, worker);
-                    cout << "M:sending work (dlzka_hesla=" << dlzky_hesiel[k] << ",poradove_cislo=" << i << ",dlzka_textu=" << j << ") to " << worker << endl;
+                    cerr << "M:sending work (dlzka_hesla=" << dlzky_hesiel[k] << ",poradove_cislo=" << i << ",dlzka_textu=" << j << ") to " << worker << endl;
 
                     // tell worker there is something to do
                     comm.send<int>(worker, tag_status, status_work);
