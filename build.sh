@@ -31,22 +31,36 @@ create_project() {
 	exit 1
     fi
 
-    echo "creating new project $name"
+    echo "creating $dir"
 
     # create project and src directories
     mkdir -p $src
 
     # create main.cpp
+    # TODO: add gpus support
     cat << EOF > $src/main.cpp
-#include <iostream>
-
-#include "MpiApp.h"
-
+// Project $name
+//
 // nodes defines number of nodes to use
 // ppn defines number of proccesors to use
 // total cores = nodes * ppn
-#define nodes 1
-#define ppn 1
+// nodes = 1
+// ppn = 2
+//
+// queue defines queue for this project
+// available queues are: serial, parallel, debug, gpu
+// queue = parallel
+//
+// walltime defines time to run on grid. Format is hh:mm:ss
+// walltime = 24:00:00
+//
+// Above variables are used for ../${name}.pbs
+// Edit them as needed, but do not delete them!
+// Notice that gpus are not supported yet.
+
+#include <iostream>
+
+#include "MpiApp.h"
 
 using namespace std;
 
@@ -61,7 +75,7 @@ EOF
     # register project
     echo "add_subdirectory($name)" >> project/CMakeLists.txt
 
-    # crate project CMakeLists
+    # create project CMakeLists.txt
     cat << EOF > $dir/CMakeLists.txt
 add_executable($name
     src/main.cpp
@@ -80,7 +94,7 @@ EOF
 #PBS -A $(cat .project-id)
 #PBS -q parallel
 #PBS -l nodes=1:ppn=1
-#PBS -l walltime=240:00:00
+#PBS -l walltime=24:00:00
 
 . /etc/profile.d/modules.sh
 module purge
@@ -128,31 +142,52 @@ run_project() {
 
     # check how many nodes and cores are specified by main
     if [ -f $main ]; then
-	nodes=$(grep "#define nodes" $rpath/src/main.cpp | cut -d' ' -f 3)
-	ppn=$(grep "#define ppn" $rpath/src/main.cpp | cut -d' ' -f 3)
-    fi
+	nodes=$(sed 's/ //g' $main | grep '//nodes=' | cut -d= -f2)
+	ppn=$(sed 's/ //g' $main | grep '//ppn=' | cut -d= -f2)
+	queue=$(sed 's/ //g' $main | grep '//queue=' | cut -d= -f2)
+	walltime=$(sed 's/ //g' $main | grep '//walltime=' | cut -d= -f2)
 
-    # check if they are realy numbers
-    if ! [[ $nodes =~ $isnum ]]; then
-	echo "please add \"#define Nodes number\" to $main"
-	exit 1
-    fi
 
-    if ! [[ $ppn =~ $isnum ]]; then
-	echo "please add \"#define Procs number\" to $main"
-	exit 1
-    fi
+	if [ ! -z $nodes ]; then
+	    # check if they are realy numbers
+	    if ! [[ $nodes =~ $isnum ]]; then
+		echo "please add // nodes=x to $main"
+		exit 1
+	    fi
 
-    # replace old nodes and ppn in .pbs
-    old_nodes=$(grep "nodes" $pbsf | cut -d' ' -f3 | cut -d: -f1 | cut -d= -f2)
-    old_ppn=$(grep "ppn" $pbsf | cut -d' ' -f3 | cut -d: -f2 | cut -d= -f2)
-    sed -i 's/nodes=$old_nodes/nodes=$nodes/' $pbsf
-    sed -i 's/ppn=$old_ppn/ppn=$ppn/' $pbsf
+	    # replace nodes in .pbs
+	    old_nodes=$(grep "nodes" $pbsf | cut -d' ' -f3 | cut -d: -f1 | cut -d= -f2)
+	    sed -i "s/nodes=${old_nodes}/nodes=${nodes}/g" $pbsf
+	fi
+
+	if [ ! -z $ppn ]; then
+	    if ! [[ $ppn =~ $isnum ]]; then
+		echo "please add // ppn=x to $main"
+		exit 1
+	    fi
+
+	    # replace ppn in .pbs
+	    old_ppn=$(grep "ppn" $pbsf | cut -d' ' -f3 | cut -d: -f2 | cut -d= -f2)
+	    sed -i "s/ppn=${old_ppn}/ppn=${ppn}/g" $pbsf
+	fi
+
+	if [ ! -z $queue ]; then
+	    # replace queue in .pbs
+	    old_queue=$(grep "^#PBS -q" $pbsf | cut -d' ' -f3)
+	    sed -i "s/^#PBS -q ${old_queue}/#PBS -q ${queue}/g" $pbsf
+	fi
+
+	if [ ! -z $walltime ]; then
+	    # replace old walltime
+	    old_walltime=$(grep "^#PBS -l walltime=" $pbsf | cut -d= -f2)
+	    sed -i "s/walltime=${old_walltime}/walltime=${walltime}/g" $pbsf
+	fi
+    fi
 
     # if we are on hpc.stuba.sk
     if hash qsub 2>/dev/null; then
         # use current .project-id
-	sed -i 's/^#PBS -A.*/#PBS -A $(cat .project-id)/' $pbsf
+	sed -i "s/^#PBS -A.*/#PBS -A $(cat .project-id)/" $pbsf
 	qsub -d $apath $pbsf
 	echo "project: $name $(cat .project-id) added to queue (check with: qstat -u $USER)"
     else
