@@ -67,7 +67,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);
-    cout << "Hello, grid" << endl;
+    cout << "Hello, grid from " << app.rank() << " out of " << app.size() << endl;
     return 0;
 }
 EOF
@@ -148,7 +148,7 @@ run_project() {
 	walltime=$(sed 's/ //g' $main | grep '//walltime=' | cut -d= -f2)
 
 
-	if [ ! -z $nodes ]; then
+	if [ ! -z "$nodes" ]; then
 	    # check if they are realy numbers
 	    if ! [[ $nodes =~ $isnum ]]; then
 		echo "please add // nodes=x to $main"
@@ -160,7 +160,7 @@ run_project() {
 	    sed -i "s/nodes=${old_nodes}/nodes=${nodes}/g" $pbsf
 	fi
 
-	if [ ! -z $ppn ]; then
+	if [ ! -z "$ppn" ]; then
 	    if ! [[ $ppn =~ $isnum ]]; then
 		echo "please add // ppn=x to $main"
 		exit 1
@@ -171,13 +171,13 @@ run_project() {
 	    sed -i "s/ppn=${old_ppn}/ppn=${ppn}/g" $pbsf
 	fi
 
-	if [ ! -z $queue ]; then
+	if [ ! -z "$queue" ]; then
 	    # replace queue in .pbs
 	    old_queue=$(grep "^#PBS -q" $pbsf | cut -d' ' -f3)
 	    sed -i "s/^#PBS -q ${old_queue}/#PBS -q ${queue}/g" $pbsf
 	fi
 
-	if [ ! -z $walltime ]; then
+	if [ ! -z "$walltime" ]; then
 	    # replace old walltime
 	    old_walltime=$(grep "^#PBS -l walltime=" $pbsf | cut -d= -f2)
 	    sed -i "s/walltime=${old_walltime}/walltime=${walltime}/g" $pbsf
@@ -191,6 +191,12 @@ run_project() {
 	qsub -d $apath $pbsf
 	echo "project: $name $(cat .project-id) added to queue (check with: qstat -u $USER)"
     else
+	if [ -z "$nodes" ];then
+	    nodes=$(grep "nodes" $pbsf | cut -d' ' -f3 | cut -d: -f1 | cut -d= -f2)
+	fi
+	if [ -z "$ppn" ]; then
+	    ppn=$(grep "ppn" $pbsf | cut -d' ' -f3 | cut -d: -f2 | cut -d= -f2)
+	fi
 	# we are running local machine
 	pushd $rpath 1>/dev/null
 	mpirun -n $(( $nodes * $ppn )) ./$name
@@ -235,17 +241,19 @@ usage() {
 }
 
 # parsing options with getopt https://gist.github.com/cosimo/3760587
-OPTS=`getopt -o hbr:n: --long help,build,run,new-project: -n $0 -- "$@"`
+OPTS=`getopt -o hbr:n: --long help,build,run:,new-project:,args: -n $0 -- "$@"`
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 
-# echo "$OPTS"
+# echo $OPTS
 eval set -- "$OPTS"
-
 while true; do
 	case "$1" in
 		-h | --help ) usage ;;
 		-b | --build ) build $BUILD; shift ;;
-		-r | --run ) run_project $2 ; shift ;;
+
+		# TODO: add argument passing
+		# --args )
+		-r | --run ) run_project $2 ; shift ;; 
 		-n | --new-project ) create_project $2 ; shift ;;
 		-- ) shift; break ;;
 		* ) break ;;
