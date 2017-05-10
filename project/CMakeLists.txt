@@ -1,2 +1,3 @@
-add_subdirectory(PGA)
 add_subdirectory(FitnessLandscape)
+add_subdirectory(ga)
+add_subdirectory(pga)

@@ -1,12 +1,36 @@
-#include "main.h"
+// Project ga
+//
+// nodes defines number of nodes to use
+// ppn defines number of proccesors to use
+// total cores = nodes * ppn
+// nodes = 1
+// ppn = 4
+//
+// queue defines queue for this project
+// available queues are: serial, parallel, debug, gpu
+// queue = parallel
+//
+// walltime defines time to run on grid. Format is hh:mm:ss
+// walltime = 200:00:00
+//
+// Above variables are used for ../ga.pbs
+// Edit them as needed, but do not delete them!
+// Notice that gpus are not supported yet.
 
 #include "MpiApp.h"
 #include "PGA.h"
+#include "Schemes.h"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <fstream>
+#include <iostream>
 #include <string>
+
+using namespace std;
+
+// generator chromozomov
+string alphabet = "abcdefghijklmnopqrstuvwxyz";
 
 enum Node {
     master,

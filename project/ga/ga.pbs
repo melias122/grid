@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#PBS -N ga
+#PBS -A 3ANTAL-2016
+#PBS -q parallel
+#PBS -l nodes=1:ppn=4
+#PBS -l walltime=200:00:00
+
+. /etc/profile.d/modules.sh
+module purge
+module load cmake/3.1.0 gcc/5.4 mvapich2/2.2
+
+CMD="mpirun ./ga"
+
+# prechod do priečinka s programom (project/ga)
+cd $PBS_O_WORKDIR
+
+# spustenie ulohy
+eval $CMD

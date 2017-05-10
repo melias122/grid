@@ -1,12 +1,40 @@
-#include "main.h"
+// Project PGA
+//
+// nodes defines number of nodes to use
+// ppn defines number of proccesors to use
+// total cores = nodes * ppn
+// nodes = 8
+// ppn = 12
+//
+// queue defines queue for this project
+// available queues are: serial, parallel, debug, gpu
+// queue = parallel
+//
+// walltime defines time to run on grid. Format is hh:mm:ss
+// walltime = 200:00:00
+//
+// Above variables are used for ../PGA.pbs
+// Edit them as needed, but do not delete them!
+// Notice that gpus are not supported yet.
+
+// ../PGA.pbs is not used for this project
+// instead ../run.sh is used which generates
+// all needed .pbs files
 
 #include "MpiApp.h"
 #include "PGA.h"
+#include "Schemes.h"
+#include "Topology.h"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>
 #include <fstream>
 #include <string>
+
+using namespace std;
+
+// generator chromozomov
+string alphabet = "abcdefghijklmnopqrstuvwxyz";
 
 unordered_map<char, topology_func *> _topology = {
     { 'b', &grid },

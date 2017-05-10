@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#PBS -N pga
+#PBS -A 3ANTAL-2016
+#PBS -q parallel
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=24:00:00
+
+. /etc/profile.d/modules.sh
+module purge
+module load cmake/3.1.0 gcc/5.4 mvapich2/2.2
+
+CMD="mpirun ./pga"
+
+# prechod do priečinka s programom (project/pga)
+cd $PBS_O_WORKDIR
+
+# spustenie ulohy
+eval $CMD
