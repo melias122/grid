@@ -9,9 +9,12 @@ MODULES="cmake/3.1.0 gcc/5.4 mvapich2/2.2"
 
 # every project needs id
 if [ ! -s .project-id ]; then
-    echo "please create .project-id. Run \"echo your-project-id > .project-id\""
+    echo "please create .project-id file with project id from hpc.stuba.sk"
+    echo "run folowing: echo \"project-id\" > .project-id"
     exit 1
 fi
+
+PROJECT_ID=$(grep "\w" .project-id | tr -d ' ')
 
 build_boost() {
     if [ ! -f vendor/.boost.lock ]; then
@@ -91,7 +94,7 @@ EOF
 #!/bin/bash
 
 #PBS -N $name
-#PBS -A $(cat .project-id)
+#PBS -A $PROJECT_ID
 #PBS -q parallel
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=24:00:00
@@ -186,10 +189,10 @@ run_project() {
 
     # if we are on hpc.stuba.sk
     if hash qsub 2>/dev/null; then
-        # use current .project-id
-	sed -i "s/^#PBS -A.*/#PBS -A $(cat .project-id)/" $pbsf
+        # use current .project-id in .pbs file
+	sed -i "s/^#PBS -A.*/#PBS -A ${PROJECT_ID}/" $pbsf
 	qsub -d $apath $pbsf
-	echo "project: $name $(cat .project-id) added to queue (check with: qstat -u $USER)"
+	echo "project: $name $PROJECT_ID added to queue (check with: qstat -u $USER)"
     else
 	if [ -z "$nodes" ];then
 	    nodes=$(grep "nodes" $pbsf | cut -d' ' -f3 | cut -d: -f1 | cut -d= -f2)
@@ -229,19 +232,37 @@ build() {
 	make -j $(nproc) install > /dev/null
 }
 
+sync() {
+    if [ ! -s .username ]; then
+	echo "please create .username file with username you login to login.hpc.stuba.sk"
+	echo "run folowing: echo \"username\" > .username"
+	exit 1
+    fi
+    # get username a name of dir
+    user=$(grep "\w" .username | tr -d ' ')
+    dir=/work/${user}/$(basename $(pwd))
+
+    # push this directory to grid
+    rsync -av --include='.project-id' --include='.gitignore' --filter=':- .gitignore' --exclude='.*' ./ ${user}@login.hpc.stuba.sk:${dir}
+
+    # pull changes from grid
+    rsync -av --filter=':- .gitignore' ${user}@login.hpc.stuba.sk:${dir}/ .
+}
+
 usage() {
 	echo "Usage: $0 [-b|--build] [-h|--help] [-r|--run project_name] [-n|--new-project]"
 	echo "   -b|--build:       builds whole project and binaries"
 	echo "   -h|--help:        prints this help"
 	echo "   -r|--run:         adds project to queue (path must be relative and from root of this project)"
 	echo "   -n|--new-project: creates new project from template"
+	echo "   --sync:           synhronizes this project with hpc.stuba.sk"
 	echo ""
-	echo "Current project is: $(cat .project-id)"
+	echo "Current project is: $PROJECT_ID"
 	exit 1
 }
 
 # parsing options with getopt https://gist.github.com/cosimo/3760587
-OPTS=`getopt -o hbr:n: --long help,build,run:,new-project:,args: -n $0 -- "$@"`
+OPTS=`getopt -o hbr:n: --long help,build,run:,new-project:,sync,args: -n $0 -- "$@"`
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 
 # echo $OPTS
@@ -250,6 +271,7 @@ while true; do
 	case "$1" in
 		-h | --help ) usage ;;
 		-b | --build ) build $BUILD; shift ;;
+		--sync ) sync; shift ;;
 
 		# TODO: add argument passing
 		# --args )
