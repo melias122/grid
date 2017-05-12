@@ -1,6 +1,8 @@
 #ifndef SCHEMES_H
 #define SCHEMES_H
 
+#include "PGA/PGA.h"
+
 //
 // Schemy operacii
 //

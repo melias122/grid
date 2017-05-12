@@ -1,10 +1,10 @@
 #include "Migrator.h"
 
-#include "utils/Debug.h"
 #include "SelectElitism.h"
 #include "SelectRandom.h"
 #include "SelectTournament.h"
 #include "SelectWorst.h"
+#include "utils/Debug.h"
 
 #include <iostream>
 

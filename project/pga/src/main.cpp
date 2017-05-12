@@ -21,7 +21,8 @@
 // instead ../run.sh is used which generates
 // all needed .pbs files
 
-#include "PGA/PGA.h"
+#include "Schemes.h"
+#include "Topology.h"
 #include "cipher/Monoalphabetic.h"
 #include "fitness/L1.h"
 #include "mpi/App.h"

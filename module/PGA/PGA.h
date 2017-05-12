@@ -12,7 +12,5 @@
 #include "SelectElitism.h"
 #include "SelectRandom.h"
 #include "SelectTournament.h"
-#include "Schemes.h"
-#include "Topology.h"
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef TOPOLOGY_H
 #define TOPOLOGY_H
 
-#include "Migrator.h"
+#include "PGA/Migrator.h"
 
 //
 // Migracne schemy (Topologie)

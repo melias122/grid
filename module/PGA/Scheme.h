@@ -2,11 +2,11 @@
 #define SCHEME_H
 
 #include "Chromosome.h"
-#include "cipher/Cipher.h"
-#include "fitness/Fitness.h"
 #include "GeneticOperation.h"
 #include "Migrator.h"
 #include "Select.h"
+#include "cipher/Cipher.h"
+#include "fitness/Fitness.h"
 
 #include <memory>
 #include <vector>

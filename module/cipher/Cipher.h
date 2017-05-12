@@ -7,7 +7,7 @@ class Cipher
 {
 public:
     ~Cipher() {}
-  virtual void decrypt(const std::string &key, std::string &plaintext) = 0;
+    virtual void decrypt(const std::string &key, std::string &plaintext) = 0;
 };
 
 #endif

@@ -17,7 +17,7 @@
 // Edit them as needed, but do not delete them!
 // Notice that gpus are not supported yet.
 
-#include "PGA/PGA.h"
+#include "Schemes.h"
 #include "cipher/Monoalphabetic.h"
 #include "fitness/L1.h"
 #include "mpi/App.h"

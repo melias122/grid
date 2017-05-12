@@ -11,7 +11,7 @@ public:
     {
     }
     static Monoalphabetic *fromFile(std::string path);
-  void decrypt(const std::string &key, std::string &plaintext) override;
+    void decrypt(const std::string &key, std::string &plaintext) override;
 
 private:
     std::string m_ciphertext;

@@ -3,8 +3,8 @@
 #PBS -N pga
 #PBS -A 3ANTAL-2016
 #PBS -q parallel
-#PBS -l nodes=1:ppn=1
-#PBS -l walltime=24:00:00
+#PBS -l nodes=8:ppn=12
+#PBS -l walltime=200:00:00
 
 . /etc/profile.d/modules.sh
 module purge

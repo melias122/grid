@@ -4,6 +4,10 @@ add_executable(pga
     # add additional .cpp files here
 )
 
+include_directories(
+	${PROJECT_SOURCE_DIR}/project/ga/src
+)
+
 target_link_libraries(pga
     libMpi
     libPGA
