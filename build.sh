@@ -220,22 +220,24 @@ run_project() {
 	qsub -d $apath $pbsf
 	echo "project: $name $PROJECT_ID added to queue (check with: qstat -u $USER)"
     else
-	if [ -z "$nodes" ];then
+	if [ -z "$nodes" ]; then
 	    nodes=$(grep "nodes" $pbsf | cut -d' ' -f3 | cut -d: -f1 | cut -d= -f2)
 	fi
+
 	if [ -z "$ppn" ]; then
 	    ppn=$(grep "ppn" $pbsf | cut -d' ' -f3 | cut -d: -f2 | cut -d= -f2)
 	fi
+
 	# we are running local machine
-	pushd $rpath 1>/dev/null
+	pushd $rpath > /dev/null
 	mpirun -n $(( $nodes * $ppn )) ./$name
-	popd 1>/dev/null
+	popd > /dev/null
     fi
 }
 
 clang_format_all() {
 	if hash clang-format 2>/dev/null; then
-		find mobule/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
+		find module/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
 		find project/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
 	fi
 }
@@ -251,11 +253,12 @@ build() {
 	build_boost
 	clang_format_all
 	mkdir -p $BUILD_DIR
-	cd $BUILD_DIR
+	pushd $BUILD_DIR > /dev/null
 
 	cmake -DCMAKE_BUILD_TYPE=$1 ..
 	make -j $(nproc)
 	make -j $(nproc) install > /dev/null
+	popd > /dev/null
 }
 
 sync() {
