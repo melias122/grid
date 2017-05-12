@@ -18,7 +18,7 @@ PROJECT_ID=$(grep "\w" .project-id | tr -d ' ')
 
 build_boost() {
     if [ ! -f vendor/.boost.lock ]; then
-	scripts/build_boost.sh
+	script/build_boost.sh
     fi
 }
 
