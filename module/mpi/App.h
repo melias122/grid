@@ -3,8 +3,8 @@
 
 #include <boost/mpi.hpp>
 
-#include "Debug.h"
-#include "Random.h"
+#include "utils/Debug.h"
+#include "utils/Random.h"
 
 namespace mpi = boost::mpi;
 

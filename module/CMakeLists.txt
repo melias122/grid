@@ -1,0 +1,5 @@
+add_subdirectory(mpi)
+add_subdirectory(PGA)
+add_subdirectory(utils)
+add_subdirectory(cipher)
+add_subdirectory(fitness)

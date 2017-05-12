@@ -16,7 +16,7 @@
 #include <time.h>
 #include <vector>
 
-#include "MpiApp.h"
+#include "mpi/App.h"
 
 using namespace std;
 

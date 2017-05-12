@@ -17,9 +17,10 @@
 // Edit them as needed, but do not delete them!
 // Notice that gpus are not supported yet.
 
-#include "MpiApp.h"
-#include "PGA.h"
-#include "Schemes.h"
+#include "PGA/PGA.h"
+#include "cipher/Monoalphabetic.h"
+#include "fitness/L1.h"
+#include "mpi/App.h"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>

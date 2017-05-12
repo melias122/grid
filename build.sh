@@ -63,14 +63,15 @@ create_project() {
 
 #include <iostream>
 
-#include "MpiApp.h"
+#include "mpi/App.h"
+#include "utils/Debug.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
     MpiApp app(argc, argv);
-    cout << "Hello, grid from " << app.rank() << " out of " << app.size() << endl;
+    println("Hello, " << "MpiApp");
     return 0;
 }
 EOF
@@ -83,10 +84,16 @@ EOF
 add_executable($name
     src/main.cpp
 
-    # add additional .cpp files here
+    # add more .cpp files here
+    # src/file.cpp
 )
 
-target_link_libraries($name grid)
+target_link_libraries($name 
+    libMpi
+    
+    # add more libs here
+    # libPGA, libCipher, libFitness, ...
+)
 install(TARGETS $name DESTINATION \${PROJECT_SOURCE_DIR}/$dir)
 EOF
 
@@ -209,7 +216,7 @@ run_project() {
 
 clang_format_all() {
 	if hash clang-format 2>/dev/null; then
-		find src/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
+		find mobule/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
 		find project/ -name '*.h' -o -name '*.cpp' | xargs clang-format -i -style=file
 	fi
 }

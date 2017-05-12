@@ -2,8 +2,6 @@
 #define PGA_H
 
 #include "Chromosome.h"
-#include "Cipher.h"
-#include "FitnessL1.h"
 #include "GA.h"
 #include "GeneticOperationCrossover.h"
 #include "GeneticOperationMutation.h"
@@ -14,5 +12,7 @@
 #include "SelectElitism.h"
 #include "SelectRandom.h"
 #include "SelectTournament.h"
+#include "Schemes.h"
+#include "Topology.h"
 
 #endif

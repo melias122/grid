@@ -1,8 +1,8 @@
 #include "Chromosome.h"
 
-#include "Cipher.h"
-#include "Fitness.h"
-#include "Random.h"
+#include "cipher/Monoalphabetic.h"
+#include "fitness/L1.h"
+#include "utils/Random.h"
 
 std::ostream &operator<<(std::ostream &os, const Genes &p)
 {

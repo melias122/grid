@@ -25,11 +25,10 @@ include_directories(
 	${Boost_INCLUDE_DIR}
 	${MPI_INCLUDE_PATH}
 	vendor/cache/include
-	src
-	src/PGA
+	module
 )
 
 link_directories(${Boost_LIBRARY_DIRS})
 
-add_subdirectory(src)
+add_subdirectory(module)
 add_subdirectory(project)

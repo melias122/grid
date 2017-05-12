@@ -1,6 +1,6 @@
 #include "GeneticOperationMutation.h"
 
-#include "Random.h"
+#include "utils/Random.h"
 
 void GeneticOperationMutation::apply(Population &pop)
 {

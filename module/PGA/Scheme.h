@@ -2,8 +2,8 @@
 #define SCHEME_H
 
 #include "Chromosome.h"
-#include "Cipher.h"
-#include "Fitness.h"
+#include "cipher/Cipher.h"
+#include "fitness/Fitness.h"
 #include "GeneticOperation.h"
 #include "Migrator.h"
 #include "Select.h"

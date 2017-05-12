@@ -1,6 +1,6 @@
 #include "GeneticOperationMutationSwapAll.h"
 
-#include "Helpers.h"
+#include "utils/Common.h"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
 #include "Migrator.h"
 
-#include "Debug.h"
+#include "utils/Debug.h"
 #include "SelectElitism.h"
 #include "SelectRandom.h"
 #include "SelectTournament.h"

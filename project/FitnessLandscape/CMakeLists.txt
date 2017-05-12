@@ -11,5 +11,5 @@ add_executable(FitnessLandscape
     src/Statistika.cpp
 )
 
-target_link_libraries(FitnessLandscape grid)
+target_link_libraries(FitnessLandscape libMpi)
 install(TARGETS FitnessLandscape DESTINATION ${PROJECT_SOURCE_DIR}/project/FitnessLandscape)

@@ -21,10 +21,10 @@
 // instead ../run.sh is used which generates
 // all needed .pbs files
 
-#include "MpiApp.h"
-#include "PGA.h"
-#include "Schemes.h"
-#include "Topology.h"
+#include "PGA/PGA.h"
+#include "cipher/Monoalphabetic.h"
+#include "fitness/L1.h"
+#include "mpi/App.h"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/string.hpp>

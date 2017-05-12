@@ -1,6 +1,6 @@
 #include "GeneticOperationCrossover.h"
 
-#include "Random.h"
+#include "utils/Random.h"
 
 #define empty_gene -1
 

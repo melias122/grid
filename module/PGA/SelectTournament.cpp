@@ -1,6 +1,6 @@
 #include "SelectTournament.h"
 
-#include "Random.h"
+#include "utils/Random.h"
 
 Population SelectTournament::select(Population p)
 {
