@@ -18,7 +18,28 @@ PROJECT_ID=$(grep "\w" .project-id | tr -d ' ')
 
 build_boost() {
     if [ ! -f vendor/.boost.lock ]; then
-	script/build_boost.sh
+	boost=boost_1_63_0.tar.bz2
+	
+	mkdir -p vendor/
+	wget --no-check-certificate https://sourceforge.net/projects/boost/files/boost/1.63.0/$boost -O vendor/$boost
+
+	echo "extracting boost"
+	tar -xjf vendor/$boost -C vendor/
+
+	# cd to boost
+	pushd vendor/boost_1_63_0
+
+	# setup
+	./bootstrap.sh --without-libraries=python
+	echo 'using mpi ;' >> project-config.jam
+	./b2 --with-mpi --with-serialization -j `nproc`
+	popd
+
+	# create lock file
+	touch vendor/.boost.lock
+
+	# cleanup
+	rm $boost
     fi
 }
 
@@ -140,11 +161,6 @@ run_project() {
 	exit 1
     fi
 
-    if ! type $rpath/$name 2>/dev/null 1>/dev/null; then
-	echo "$rpath/$name does not exist (did you run ./build.sh -b?)"
-	exit 1
-    fi
-
     if [ ! -f $pbsf ]; then
 	echo "$pbsf does not exist"
 	exit 1
@@ -193,6 +209,9 @@ run_project() {
 	    sed -i "s/walltime=${old_walltime}/walltime=${walltime}/g" $pbsf
 	fi
     fi
+
+    # rebuild project
+    build
 
     # if we are on hpc.stuba.sk
     if hash qsub 2>/dev/null; then
