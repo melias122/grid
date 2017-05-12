@@ -13,8 +13,6 @@ class Fitness;
 class Generator;
 
 using Genes = std::string;
-std::ostream &operator<<(std::ostream &os, const Genes &p);
-std::string to_string(const Genes &g);
 
 class Chromosome
 {
