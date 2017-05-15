@@ -1,7 +1,5 @@
 #include "GA.h"
 
-using std::shared_ptr;
-
 Population GeneticAlgorithm::run(int id, const Scheme &scheme)
 {
     Population pop;
