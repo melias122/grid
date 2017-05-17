@@ -275,7 +275,7 @@ sync() {
     rsync -av --include='.project-id' --include='.gitignore' --filter=':- .gitignore' --exclude='.*' ./ ${user}@login.hpc.stuba.sk:${dir}
 
     # pull changes from grid
-    rsync -av --filter=':- .gitignore' ${user}@login.hpc.stuba.sk:${dir}/ .
+    rsync -av --filter=':- .gitignore' --exclude='.*' ${user}@login.hpc.stuba.sk:${dir}/ .
 }
 
 usage() {
