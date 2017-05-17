@@ -4,22 +4,22 @@
 #include "Chromosome.h"
 #include "GeneticOperation.h"
 #include "Migrator.h"
-#include "Select.h"
 #include "cipher/Cipher.h"
 #include "fitness/Fitness.h"
+#include "select/Interface.h"
 
 #include <memory>
 #include <vector>
 
 struct Operation {
-    Operation(Select *s, GeneticOperation *o)
+    Operation(Select::Interface *s, GeneticOperation::Interface *o)
         : select{ s }
         , geneticOperation{ o }
     {
     }
 
-    std::shared_ptr<Select> select;
-    std::shared_ptr<GeneticOperation> geneticOperation;
+    std::shared_ptr<Select::Interface> select;
+    std::shared_ptr<GeneticOperation::Interface> geneticOperation;
 };
 
 struct Scheme {
@@ -39,7 +39,7 @@ struct Scheme {
     {
     }
 
-    std::vector<Operation> &addOperations(Select *s, GeneticOperation *o)
+    std::vector<Operation> &addOperations(Select::Interface *s, GeneticOperation::Interface *o)
     {
         operations.push_back({ Operation(s, o) });
         return operations.back();

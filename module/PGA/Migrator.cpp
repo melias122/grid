@@ -1,9 +1,9 @@
 #include "Migrator.h"
 
-#include "SelectElitism.h"
-#include "SelectRandom.h"
-#include "SelectTournament.h"
-#include "SelectWorst.h"
+#include "select/Elitism.h"
+#include "select/Random.h"
+#include "select/Tournament.h"
+#include "select/Worst.h"
 #include "utils/Debug.h"
 
 #include <iostream>
@@ -22,22 +22,22 @@ Population Migration::select(Population &p) const
     DBG_LOG("select " << type_to_string[m_type]);
     switch (m_type) {
     case Type::Best: {
-        SelectElitism s(m_choose);
+        Select::Elitism s(m_choose);
         return s.select(p);
     }
 
     case Type::Worst: {
-        SelectWorst s(m_choose);
+        Select::Worst s(m_choose);
         return s.select(p);
     }
 
     case Type::Random: {
-        SelectRandom s(m_choose);
+        Select::Random s(m_choose);
         return s.select(p);
     }
 
     case Type::Tournament: {
-        SelectTournament s(m_choose);
+        Select::Tournament s(m_choose);
         return s.select(p);
     }
 

@@ -51,6 +51,6 @@ void append(Population &p0, const Population &p1)
 
 Genes ShuffleGenerator::generate()
 {
-    Random.Shuffle(genes.begin(), genes.end());
+    Rand.Shuffle(genes.begin(), genes.end());
     return genes;
 }

@@ -211,7 +211,7 @@ run_project() {
     fi
 
     # rebuild project
-    build
+    # build
 
     # if we are on hpc.stuba.sk
     if hash qsub 2>/dev/null; then

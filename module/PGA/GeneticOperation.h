@@ -1,14 +1,18 @@
-#ifndef GENOP_H
-#define GENOP_H
+#ifndef GeneticOperation_h
+#define GeneticOperation_h
 
 #include "Chromosome.h"
 
-class GeneticOperation
+namespace GeneticOperation
+{
+
+// Interface for mutation and crossover operations
+class Interface
 {
 public:
-    ~GeneticOperation() {}
-
+    ~Interface() {}
     virtual void apply(Population &pop) {}
 };
+}
 
 #endif

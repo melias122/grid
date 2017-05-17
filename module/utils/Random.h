@@ -56,6 +56,6 @@ private:
     std::mt19937_64 _mt;
 };
 
-static RNG Random;
+static RNG Rand;
 
 #endif

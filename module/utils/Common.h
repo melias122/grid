@@ -8,35 +8,31 @@
 #include <string>
 #include <vector>
 
-#include "utils/Random.h"
-
-using namespace std;
-
 namespace Helpers
 {
 
-static string readFile(string path)
+static std::string readFile(std::string path)
 {
-    string content;
-    ifstream ifs(path);
+    std::string content;
+    std::ifstream ifs(path);
     if (!ifs.is_open()) {
-        throw invalid_argument("could not open file: " + path);
+        throw std::invalid_argument("could not open file: " + path);
     }
-    content.assign(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>());
+    content.assign(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
     ifs.close();
     return content;
 }
 
 // https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
-static vector<vector<int>> comb(int N, int K)
+static std::vector<std::vector<int>> comb(int N, int K)
 {
-    vector<vector<int>> retVal;
-    string bitmask(K, 1); // K leading 1's
+    std::vector<std::vector<int>> retVal;
+    std::string bitmask(K, 1); // K leading 1's
     bitmask.resize(N, 0); // N-K trailing 0's
 
     // print integers and permute bitmask
     do {
-        vector<int> pair;
+        std::vector<int> pair;
         for (int i = 0; i < N; ++i) // [0..N-1] integers
         {
             if (bitmask[i]) {
@@ -44,7 +40,7 @@ static vector<vector<int>> comb(int N, int K)
             }
         }
         retVal.push_back(pair);
-    } while (prev_permutation(bitmask.begin(), bitmask.end()));
+    } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
 
     return retVal;
 }
