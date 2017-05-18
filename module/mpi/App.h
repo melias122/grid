@@ -24,6 +24,18 @@ public:
     int size() { return comm.size(); }
     const mpi::communicator &communicator() const { return comm; }
 
+    template <class Value>
+    void send(int dest, int tag, Value const &v)
+    {
+        comm.send<Value>(dest, tag, v);
+    }
+
+    template <class Value>
+    void recv(int source, int tag, Value &v)
+    {
+        comm.recv<Value>(source, tag, v);
+    }
+
 private:
     mpi::communicator comm;
 };

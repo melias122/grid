@@ -39,7 +39,7 @@ build_boost() {
 	touch vendor/.boost.lock
 
 	# cleanup
-	rm $boost
+	rm vendor/$boost
     fi
 }
 
@@ -210,8 +210,11 @@ run_project() {
 	fi
     fi
 
-    # rebuild project
-    # build
+    # check binary
+    if ! type $rpath/$name 2>/dev/null 1>/dev/null; then
+	echo "$rpath/$name does not exist (did you run ./build.sh -b?)"
+	exit 1
+    fi
 
     # if we are on hpc.stuba.sk
     if hash qsub 2>/dev/null; then
