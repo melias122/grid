@@ -30,5 +30,8 @@ include_directories(
 
 link_directories(${Boost_LIBRARY_DIRS})
 
+FILE(GLOB_RECURSE headers "*.h")
+add_custom_target(AllHeaders SOURCES ${headers})
+
 add_subdirectory(module)
 add_subdirectory(project)
