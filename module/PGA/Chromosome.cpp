@@ -48,9 +48,3 @@ void append(Population &p0, const Population &p1)
 {
     p0.insert(p0.end(), p1.begin(), p1.end());
 }
-
-Genes ShuffleGenerator::generate()
-{
-    Rand.Shuffle(genes.begin(), genes.end());
-    return genes;
-}

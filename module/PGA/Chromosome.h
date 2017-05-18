@@ -8,11 +8,12 @@
 #include <string>
 #include <vector>
 
+#include "Generator.h"
+#include "cipher/Cipher.h"
+#include "fitness/Fitness.h"
+
 class Cipher;
 class Fitness;
-class Generator;
-
-using Genes = std::string;
 
 class Chromosome
 {
@@ -56,33 +57,5 @@ private:
 using Population = std::vector<Chromosome>;
 std::ostream &operator<<(std::ostream &os, const Population &p);
 void append(Population &p0, const Population &p1);
-
-class Generator
-{
-public:
-    //    Generator(const Genes &genes)
-    //        : genes{ genes }
-    //    {
-    //    }
-
-    Generator(const std::string &alphabet)
-        : genes(alphabet)
-    {
-    }
-
-    virtual Genes generate() = 0;
-
-    Genes genes;
-};
-
-class ShuffleGenerator : public Generator
-{
-public:
-    ShuffleGenerator(const std::string &alphabet)
-        : Generator{ alphabet }
-    {
-    }
-    Genes generate() override;
-};
 
 #endif // CHROMOSOME_H
